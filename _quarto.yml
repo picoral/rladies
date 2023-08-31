@@ -1,0 +1,23 @@
+project:
+  type: website
+  output-dir: docs
+
+website:
+  title: "R-Ladies Tucson"
+  navbar:
+    left:
+      - href: index.qmd
+        text: Home
+      - href: 2023-09-01.qmd
+        text: OpenSci Tutorial
+      - about.qmd
+
+format:
+  html:
+    theme: cosmo
+    css: styles.css
+    toc: true
+    number-sections: false
+
+editor: source
+
