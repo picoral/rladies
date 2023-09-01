@@ -3,10 +3,12 @@ title: "Reproducing Open Science Research"
 df-print: kable
 ---
 
+This tutorial took place on September 1, 2023. Here's the [session recording](https://arizona.zoom.us/rec/share/90UMNvzQX1_8gB4GkNyJ26wP6NLN1PqgmGYLVaY1S07t03Iqbl-Xujha9rR0Y1DF.8HL4mUnOQnSVQwcs).
+
 # Data
 
 For this tutorial, we will be reproduction the data analysis at an Open Science repository.
-We are going to be using data from the [IRIS database](https://www.iris-database.org/details/8Inx1-lXnb6. 
+We are going to be using data from the [IRIS database](https://www.iris-database.org/details/8Inx1-lXnb6). 
 
 Here's an excerpt of the study's abstract:
 
