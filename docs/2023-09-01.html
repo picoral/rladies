@@ -20,6 +20,40 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
 </style>
 
 
@@ -105,7 +139,23 @@ ul.task-list li input[type="checkbox"] {
 <!-- sidebar -->
 <!-- margin-sidebar -->
     <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
-        
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#data" id="toc-data" class="nav-link active" data-scroll-target="#data">Data</a></li>
+  <li><a href="#participants-page-187" id="toc-participants-page-187" class="nav-link" data-scroll-target="#participants-page-187">Participants (page 187)</a></li>
+  <li><a href="#statistical-analyses-page-196" id="toc-statistical-analyses-page-196" class="nav-link" data-scroll-target="#statistical-analyses-page-196">Statistical Analyses (page 196)</a>
+  <ul class="collapse">
+  <li><a href="#table-1-descriptive-statistics-for-the-perceived-mental-effort-scale" id="toc-table-1-descriptive-statistics-for-the-perceived-mental-effort-scale" class="nav-link" data-scroll-target="#table-1-descriptive-statistics-for-the-perceived-mental-effort-scale">Table 1 Descriptive statistics for the perceived mental effort scale</a></li>
+  <li><a href="#table-4-results-for-the-linear-regression-models-examining-the-effects-of-task-complexity-on-the-oral-and-written-production-tests" id="toc-table-4-results-for-the-linear-regression-models-examining-the-effects-of-task-complexity-on-the-oral-and-written-production-tests" class="nav-link" data-scroll-target="#table-4-results-for-the-linear-regression-models-examining-the-effects-of-task-complexity-on-the-oral-and-written-production-tests">Table 4 Results for the linear regression models examining the effects of task complexity on the oral and written production tests</a></li>
+  </ul></li>
+  <li><a href="#data-visualization" id="toc-data-visualization" class="nav-link" data-scroll-target="#data-visualization">Data Visualization</a>
+  <ul class="collapse">
+  <li><a href="#visualizations-by-group" id="toc-visualizations-by-group" class="nav-link" data-scroll-target="#visualizations-by-group">Visualizations by Group</a></li>
+  </ul></li>
+  </ul>
+</nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
@@ -127,8 +177,533 @@ ul.task-list li input[type="checkbox"] {
 
 </header>
 
+<section id="data" class="level1">
+<h1>Data</h1>
+<p>For this tutorial, we will be reproduction the data analysis at an Open Science repository. We are going to be using data from the [IRIS database](https://www.iris-database.org/details/8Inx1-lXnb6.</p>
+<p>Here’s an excerpt of the study’s abstract:</p>
+<blockquote class="blockquote">
+<p>This study investigated the effects of task complexity on child learners’ second language (L2) gains, the relationship between aptitude and L2 development, and the extent to which task complexity influences this relationship when recasts are provided. Sixty child EFL learners were assigned to two experimental groups. During the treatment, one group completed simple information transmission tasks, whereas the other group performed complex decision-making tasks. In response to errors in the use of the present third person singular verb forms, participants received recasts. L2 development was measured through oral production, written production, and elicited imitation tests. Aptitude was assessed through LLAMA D, LLAMA E, and LLAMA F.</p>
+</blockquote>
+<p>Our first step it to load the <code>tidyverse</code> library (RStudio will prompt you to install it).</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># load library for data analysis</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Download the data and add it to your project inside a folder called <code>data</code>.</p>
+<p>Now we read the data in:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># read data in</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>child_l2_data <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">"data/Data_Kourtali_Revesz.csv"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>It’s always a good idea to inspect the data to make sure everything looks good.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">glimpse</span>(child_l2_data)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Rows: 60
+Columns: 61
+$ Participant                   &lt;dbl&gt; 1, 3, 11, 12, 15, 25, 26, 32, 40, 41, 43…
+$ Time                          &lt;dbl&gt; 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1…
+$ Group                         &lt;dbl&gt; 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1…
+$ Duration_English              &lt;dbl&gt; 6.0, 5.0, 4.0, 5.0, 4.0, 4.0, 6.0, 7.0, …
+$ Listening                     &lt;dbl&gt; 6, 10, 5, 5, 3, 5, 7, 10, 6, 9, 10, 7, 9…
+$ Oral_Production_Pre           &lt;dbl&gt; 26.31, 18.75, 0.00, 0.00, 0.00, 0.00, 0.…
+$ Written_Production_Pre        &lt;dbl&gt; 0.00, 9.09, 0.00, 0.00, 0.00, 0.00, 8.33…
+$ Oral_Production_Post          &lt;dbl&gt; 26.66, 28.57, 0.00, 0.00, 0.00, 53.33, 3…
+$ Written_Production_Post       &lt;dbl&gt; 61.53, 75.00, 0.00, 58.33, 0.00, 100.00,…
+$ EI                            &lt;dbl&gt; 29.16, 29.10, 0.00, 12.50, 0.00, 4.16, 4…
+$ EI_GRAM                       &lt;dbl&gt; 41.66, 50.00, 0.00, 25.00, 0.00, 8.33, 8…
+$ EI_UNGRAM                     &lt;dbl&gt; 16.66, 8.33, 0.00, 0.00, 0.00, 0.00, 0.0…
+$ LLAMA_D                       &lt;dbl&gt; 45, 10, 20, 15, 30, 25, 25, 35, 35, 35, …
+$ LLAMA_E                       &lt;dbl&gt; 50, 0, 0, 40, 60, 0, 40, 90, 10, 30, 70,…
+$ LLAMA_F                       &lt;dbl&gt; 0, 40, 20, 10, 0, 40, 50, 10, 30, 20, 0,…
+$ Recasts_T1                    &lt;dbl&gt; 11, 10, 12, 16, 15, 3, 8, 9, 9, 12, 6, 9…
+$ SU_T1_Number                  &lt;dbl&gt; 7, 8, 0, 0, 1, 1, 0, 7, 3, 3, 3, 1, 0, 6…
+$ SU_T1_Percentage              &lt;dbl&gt; 63.63, 80.00, 0.00, 0.00, 6.66, 33.33, 0…
+$ OC_T1_OVERALL                 &lt;dbl&gt; 19, 15, 13, 22, 15, 13, 15, 25, 13, 12, …
+$ OC_T1                         &lt;dbl&gt; 18, 15, 13, 19, 15, 13, 15, 25, 13, 12, …
+$ Recasts_T1_Percentage         &lt;dbl&gt; 61.11, 66.66, 92.30, 84.21, 100.00, 23.0…
+$ CP_T1_Number                  &lt;dbl&gt; 6, 5, 1, 0, 0, 10, 7, 16, 4, 0, 7, 5, 9,…
+$ CP_T1_Percentage              &lt;dbl&gt; 31.57, 33.33, 7.69, 0.00, 0.00, 76.92, 4…
+$ Recasts_T2                    &lt;dbl&gt; 4, 9, 12, 10, 15, 3, 4, 1, 7, 8, 0, 6, 0…
+$ SU_T2_Number                  &lt;dbl&gt; 4, 6, 2, 0, 0, 0, 0, 1, 7, 0, 0, 0, 0, 3…
+$ SU_T2_Percentage              &lt;dbl&gt; 100.00, 66.66, 16.66, 0.00, 0.00, 0.00, …
+$ OC_T2_OVERALL                 &lt;dbl&gt; 21, 14, 14, 19, 15, 14, 15, 22, 15, 14, …
+$ OC_T2                         &lt;dbl&gt; 20, 14, 14, 18, 15, 14, 15, 22, 15, 14, …
+$ Recasts_T2_percentage         &lt;dbl&gt; 20.00, 64.28, 85.71, 55.55, 100.00, 21.4…
+$ CP_T2_Number                  &lt;dbl&gt; 15, 5, 2, 7, 0, 11, 11, 21, 8, 6, 13, 10…
+$ CP_T2_Percentage              &lt;dbl&gt; 71.42, 35.71, 14.28, 36.84, 0.00, 78.57,…
+$ ME_1                          &lt;dbl&gt; 2, 2, 5, 3, 2, 2, 1, 3, 6, 2, 3, 5, 5, 8…
+$ ME_2                          &lt;dbl&gt; 2, 2, 5, 3, 3, 3, 1, 2, 2, 2, 2, 2, 5, 8…
+$ Overall_Dif_T1                &lt;dbl&gt; 1, 2, 5, 3, 6, 1, 1, 1, 4, 1, 3, 1, 5, 1…
+$ Overall_Dif_T2                &lt;dbl&gt; 1, 2, 4, 2, 6, 3, 1, 2, 4, 1, 2, 1, 4, 1…
+$ Ling_Dif_T1                   &lt;dbl&gt; 1, 2, 6, 2, 3, 2, 1, 2, 4, 3, 2, 2, 4, 1…
+$ Ling_Dif_T2                   &lt;dbl&gt; 1, 2, 6, 3, 4, 2, 1, 2, 3, 3, 2, 1, 4, 1…
+$ Perceiv_Perf_T1               &lt;dbl&gt; 2, 3, 5, 3, 8, 7, 1, 4, 5, 2, 3, 3, 5, 2…
+$ Perceiv_Perf_T2               &lt;dbl&gt; 1, 3, 5, 3, 7, 6, 1, 3, 5, 3, 2, 2, 5, 1…
+$ Recasts_Number_total          &lt;dbl&gt; 15, 19, 24, 26, 30, 6, 12, 10, 16, 20, 6…
+$ SU_Number_total               &lt;dbl&gt; 11, 14, 2, 0, 1, 1, 0, 8, 10, 3, 3, 1, 0…
+$ SU_Percentage_total           &lt;dbl&gt; 73.33, 73.68, 8.33, 0.00, 3.33, 16.67, 0…
+$ OC_TOTAL                      &lt;dbl&gt; 38, 29, 27, 37, 30, 27, 30, 47, 28, 26, …
+$ Elicited_Imitation_Total_Pre  &lt;dbl&gt; 7, 7, 0, 3, 0, 1, 1, 4, 3, 4, 11, 5, 3, …
+$ Elicited_Imitation_Gr_Pre     &lt;dbl&gt; 5, 6, 0, 3, 0, 1, 1, 3, 1, 3, 11, 5, 3, …
+$ Elicited_Imitation_Ungr_Pre   &lt;dbl&gt; 2, 1, 0, 0, 0, 0, 0, 1, 2, 1, 0, 0, 0, 5…
+$ Elicited_Imitation_Total_Post &lt;dbl&gt; 5, 10, 0, 8, 1, 0, 3, 17, 9, 7, 11, 14, …
+$ Elicited_Imitation_Gr_Post    &lt;dbl&gt; 4, 10, 0, 6, 1, 0, 2, 9, 5, 7, 10, 10, 6…
+$ Elicited_Imitation_Ungr_Post  &lt;dbl&gt; 1, 0, 0, 2, 0, 0, 1, 8, 4, 0, 1, 4, 0, 1…
+$ Gain_oral                     &lt;dbl&gt; 0.35, 9.82, 0.00, 0.00, 0.00, 53.33, 30.…
+$ Gain_written                  &lt;dbl&gt; 61.53, 65.91, 0.00, 58.33, 0.00, 100.00,…
+$ Gain_EI                       &lt;dbl&gt; -2, 3, 0, 5, 1, -1, 2, 13, 6, 3, 0, 9, 3…
+$ Gain_EI_Gr                    &lt;dbl&gt; -1, 4, 0, 3, 1, -1, 1, 6, 4, 4, -1, 5, 3…
+$ Gain_EI_Ungr                  &lt;dbl&gt; -1, -1, 0, 2, 0, 0, 1, 7, 2, -1, 1, 4, 0…
+$ CP_both_tasks                 &lt;dbl&gt; 21, 10, 3, 7, 0, 21, 18, 37, 12, 6, 20, …
+$ ZRE_1                         &lt;dbl&gt; 2.94, 1.95, -0.53, -0.53, -0.53, -0.53, …
+$ ZRE_2                         &lt;dbl&gt; -0.24, -0.18, -1.17, -1.17, -1.17, 0.69,…
+$ OralProPre_log                &lt;dbl&gt; 3.27, 2.93, 0.00, 0.00, 0.00, 0.00, 0.00…
+$ OralProPost_log               &lt;dbl&gt; 3.28, 3.35, 0.00, 0.00, 0.00, 3.98, 3.43…
+$ ZRE_3                         &lt;dbl&gt; 2.22, 1.93, -0.58, -0.58, -0.58, -0.58, …
+$ ZRE_4                         &lt;dbl&gt; 0.42, 0.46, -1.39, -1.39, -1.39, 0.81, 0…</code></pre>
+</div>
+</div>
+</section>
+<section id="participants-page-187" class="level1">
+<h1>Participants (page 187)</h1>
+<blockquote class="blockquote">
+<p>The final pool of participants included 26 females and 34 males</p>
+</blockquote>
+<p>There should be 60 participants in the data.</p>
+<blockquote class="blockquote">
+<p>The study employed a pretest–posttest design with two treatment sessions. Par- ticipants were assigned to one of two experimental groups through stratified random sampling, taking into account their pretest, proficiency, aptitude test results, and length of prior English study.</p>
+</blockquote>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>child_l2_data <span class="sc">%&gt;%</span> </span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(Group)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div class="kable-table">
+<table class="table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th style="text-align: right;">Group</th>
+<th style="text-align: right;">n</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">30</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">30</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<blockquote class="blockquote">
+<p>A series of independent-samples t-tests targeting the variables length of previous English study, and performance on the proficiency test confirmed that the two groups were comparable.</p>
+</blockquote>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>group_1_data <span class="ot">&lt;-</span> child_l2_data <span class="sc">%&gt;%</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(Group <span class="sc">==</span> <span class="dv">1</span>)</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>group_2_data <span class="ot">&lt;-</span> child_l2_data <span class="sc">%&gt;%</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(Group <span class="sc">==</span> <span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<blockquote class="blockquote">
+<p>English study,t=0.33,p=.75,d=0.08</p>
+</blockquote>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">t.test</span>(group_1_data<span class="sc">$</span>Duration_English, </span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>       group_2_data<span class="sc">$</span>Duration_English)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+    Welch Two Sample t-test
+
+data:  group_1_data$Duration_English and group_2_data$Duration_English
+t = 0.32672, df = 56.749, p-value = 0.7451
+alternative hypothesis: true difference in means is not equal to 0
+95 percent confidence interval:
+ -0.5129511  0.7129511
+sample estimates:
+mean of x mean of y 
+      4.7       4.6 </code></pre>
+</div>
+</div>
+<blockquote class="blockquote">
+<p>proficiency,t=0.07,p=.95,d=0.01</p>
+</blockquote>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">t.test</span>(group_1_data<span class="sc">$</span>Listening, </span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>       group_2_data<span class="sc">$</span>Listening)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+    Welch Two Sample t-test
+
+data:  group_1_data$Listening and group_2_data$Listening
+t = 0.061574, df = 57.922, p-value = 0.9511
+alternative hypothesis: true difference in means is not equal to 0
+95 percent confidence interval:
+ -1.050337  1.117004
+sample estimates:
+mean of x mean of y 
+ 5.833333  5.800000 </code></pre>
+</div>
+</div>
+<p>T-test Effect Size using Cohen’s d Measure https://www.datanovia.com/en/lessons/t-test-effect-size-using-cohens-d-measure/</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(rstatix)</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>child_l2_data <span class="sc">%&gt;%</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cohens_d</span>(Duration_English <span class="sc">~</span> Group)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div class="kable-table">
+<table class="table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th style="text-align: left;">.y.</th>
+<th style="text-align: left;">group1</th>
+<th style="text-align: left;">group2</th>
+<th style="text-align: right;">effsize</th>
+<th style="text-align: right;">n1</th>
+<th style="text-align: right;">n2</th>
+<th style="text-align: left;">magnitude</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Duration_English</td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">2</td>
+<td style="text-align: right;">0.0843597</td>
+<td style="text-align: right;">30</td>
+<td style="text-align: right;">30</td>
+<td style="text-align: left;">negligible</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>child_l2_data <span class="sc">%&gt;%</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cohens_d</span>(Listening <span class="sc">~</span> Group)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div class="kable-table">
+<table class="table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th style="text-align: left;">.y.</th>
+<th style="text-align: left;">group1</th>
+<th style="text-align: left;">group2</th>
+<th style="text-align: right;">effsize</th>
+<th style="text-align: right;">n1</th>
+<th style="text-align: right;">n2</th>
+<th style="text-align: left;">magnitude</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Listening</td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">2</td>
+<td style="text-align: right;">0.0158983</td>
+<td style="text-align: right;">30</td>
+<td style="text-align: right;">30</td>
+<td style="text-align: left;">negligible</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</section>
+<section id="statistical-analyses-page-196" class="level1">
+<h1>Statistical Analyses (page 196)</h1>
+<section id="table-1-descriptive-statistics-for-the-perceived-mental-effort-scale" class="level2">
+<h2 class="anchored" data-anchor-id="table-1-descriptive-statistics-for-the-perceived-mental-effort-scale">Table 1 Descriptive statistics for the perceived mental effort scale</h2>
+<p>The standard error is calculated by dividing the standard deviation by the sample size’s square root. The standard error is most useful as a means of calculating a confidence interval. For a large sample, a 95% confidence interval is obtained as the values 1.96×SE either side of the mean (https://www.ncbi.nlm.nih.gov/pmc/articles/PMC1255808).</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>child_l2_data <span class="sc">%&gt;%</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(Group) <span class="sc">%&gt;%</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">n =</span> <span class="fu">n</span>(),</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>            <span class="at">mean_ME_1 =</span> <span class="fu">mean</span>(ME_1),</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>            <span class="at">sd_ME_1 =</span> <span class="fu">sd</span>(ME_1),</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>            <span class="at">mean_ME_2 =</span> <span class="fu">mean</span>(ME_2),</span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>            <span class="at">sd_ME_2 =</span> <span class="fu">sd</span>(ME_2)) <span class="sc">%&gt;%</span></span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">lower_ci_ME_1 =</span> mean_ME_1 <span class="sc">-</span> <span class="fu">qt</span>(<span class="dv">1</span> <span class="sc">-</span> (.<span class="dv">05</span> <span class="sc">/</span> <span class="dv">2</span>), n <span class="sc">-</span> <span class="dv">1</span>) <span class="sc">*</span> sd_ME_1<span class="sc">/</span><span class="fu">sqrt</span>(n),</span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>         <span class="at">upper_ci_ME_1 =</span> mean_ME_1 <span class="sc">+</span> <span class="fu">qt</span>(<span class="dv">1</span> <span class="sc">-</span> (.<span class="dv">05</span> <span class="sc">/</span> <span class="dv">2</span>), n <span class="sc">-</span> <span class="dv">1</span>) <span class="sc">*</span> sd_ME_1<span class="sc">/</span><span class="fu">sqrt</span>(n),</span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>         <span class="at">lower_ci_ME_2 =</span> mean_ME_2 <span class="sc">-</span> <span class="fu">qt</span>(<span class="dv">1</span> <span class="sc">-</span> (.<span class="dv">05</span> <span class="sc">/</span> <span class="dv">2</span>), n <span class="sc">-</span> <span class="dv">1</span>) <span class="sc">*</span> sd_ME_2<span class="sc">/</span><span class="fu">sqrt</span>(n),</span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>         <span class="at">upper_ci_ME_2 =</span> mean_ME_2 <span class="sc">+</span> <span class="fu">qt</span>(<span class="dv">1</span> <span class="sc">-</span> (.<span class="dv">05</span> <span class="sc">/</span> <span class="dv">2</span>), n <span class="sc">-</span> <span class="dv">1</span>) <span class="sc">*</span> sd_ME_2<span class="sc">/</span><span class="fu">sqrt</span>(n))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div class="kable-table">
+<table class="table table-sm table-striped small">
+<colgroup>
+<col style="width: 5%">
+<col style="width: 2%">
+<col style="width: 9%">
+<col style="width: 8%">
+<col style="width: 9%">
+<col style="width: 8%">
+<col style="width: 13%">
+<col style="width: 13%">
+<col style="width: 13%">
+<col style="width: 13%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: right;">Group</th>
+<th style="text-align: right;">n</th>
+<th style="text-align: right;">mean_ME_1</th>
+<th style="text-align: right;">sd_ME_1</th>
+<th style="text-align: right;">mean_ME_2</th>
+<th style="text-align: right;">sd_ME_2</th>
+<th style="text-align: right;">lower_ci_ME_1</th>
+<th style="text-align: right;">upper_ci_ME_1</th>
+<th style="text-align: right;">lower_ci_ME_2</th>
+<th style="text-align: right;">upper_ci_ME_2</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">30</td>
+<td style="text-align: right;">3.833333</td>
+<td style="text-align: right;">1.743626</td>
+<td style="text-align: right;">3.433333</td>
+<td style="text-align: right;">1.715715</td>
+<td style="text-align: right;">3.182253</td>
+<td style="text-align: right;">4.484414</td>
+<td style="text-align: right;">2.792675</td>
+<td style="text-align: right;">4.073992</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">30</td>
+<td style="text-align: right;">5.933333</td>
+<td style="text-align: right;">1.910648</td>
+<td style="text-align: right;">5.233333</td>
+<td style="text-align: right;">2.358891</td>
+<td style="text-align: right;">5.219886</td>
+<td style="text-align: right;">6.646781</td>
+<td style="text-align: right;">4.352509</td>
+<td style="text-align: right;">6.114158</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</section>
+<section id="table-4-results-for-the-linear-regression-models-examining-the-effects-of-task-complexity-on-the-oral-and-written-production-tests" class="level2">
+<h2 class="anchored" data-anchor-id="table-4-results-for-the-linear-regression-models-examining-the-effects-of-task-complexity-on-the-oral-and-written-production-tests">Table 4 Results for the linear regression models examining the effects of task complexity on the oral and written production tests</h2>
+<p>The way it is in the paper: group is a numeric variable</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>model_1 <span class="ot">&lt;-</span> <span class="fu">lm</span>(ME_1 <span class="sc">~</span> Group, child_l2_data)</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(effects)</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a><span class="fu">effect</span>(<span class="st">"Group"</span>, model_1) <span class="sc">%&gt;%</span></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data.frame</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div class="kable-table">
+<table class="table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th style="text-align: right;">Group</th>
+<th style="text-align: right;">fit</th>
+<th style="text-align: right;">se</th>
+<th style="text-align: right;">lower</th>
+<th style="text-align: right;">upper</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">1.0</td>
+<td style="text-align: right;">3.833333</td>
+<td style="text-align: right;">0.3339362</td>
+<td style="text-align: right;">3.164887</td>
+<td style="text-align: right;">4.501779</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">1.2</td>
+<td style="text-align: right;">4.253333</td>
+<td style="text-align: right;">0.2753709</td>
+<td style="text-align: right;">3.702119</td>
+<td style="text-align: right;">4.804548</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">1.5</td>
+<td style="text-align: right;">4.883333</td>
+<td style="text-align: right;">0.2361286</td>
+<td style="text-align: right;">4.410671</td>
+<td style="text-align: right;">5.355996</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">1.8</td>
+<td style="text-align: right;">5.513333</td>
+<td style="text-align: right;">0.2753709</td>
+<td style="text-align: right;">4.962119</td>
+<td style="text-align: right;">6.064548</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">2.0</td>
+<td style="text-align: right;">5.933333</td>
+<td style="text-align: right;">0.3339362</td>
+<td style="text-align: right;">5.264887</td>
+<td style="text-align: right;">6.601779</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co"># linear regression (recreation of table 4 on page 200)</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>model_table_4 <span class="ot">&lt;-</span> child_l2_data <span class="sc">%&gt;%</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">lm</span>(<span class="at">formula =</span> Oral_Production_Post <span class="sc">~</span> Oral_Production_Pre <span class="sc">+</span> Group)</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(model_table_4)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = Oral_Production_Post ~ Oral_Production_Pre + Group, 
+    data = .)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-41.942 -21.363  -4.573  21.869  66.482 
+
+Coefficients:
+                    Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)          44.0133    11.1696   3.940 0.000224 ***
+Oral_Production_Pre   1.3947     0.4662   2.991 0.004099 ** 
+Group               -15.9727     6.9541  -2.297 0.025320 *  
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 26.93 on 57 degrees of freedom
+Multiple R-squared:  0.2022,    Adjusted R-squared:  0.1742 
+F-statistic: 7.222 on 2 and 57 DF,  p-value: 0.001601</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">effect</span>(<span class="st">"Group"</span>, model_table_4) <span class="sc">%&gt;%</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data.frame</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> Group,</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>             <span class="at">y =</span> fit,</span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>             <span class="at">ymin =</span> lower,</span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>             <span class="at">ymax =</span> upper)) <span class="sc">+</span></span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_errorbar</span>() <span class="sc">+</span></span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_label</span>(<span class="fu">aes</span>(<span class="at">label =</span> <span class="fu">format</span>(fit, <span class="at">digits =</span> <span class="dv">2</span>)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="2023-09-01_files/figure-html/unnamed-chunk-11-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>The correct way: group is a categorical (factor) variable</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>child_l2_data <span class="ot">&lt;-</span> child_l2_data <span class="sc">%&gt;%</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">group =</span> <span class="fu">factor</span>(Group))</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>model_1 <span class="ot">&lt;-</span> <span class="fu">lm</span>(ME_1 <span class="sc">~</span> group, child_l2_data)</span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a><span class="fu">effect</span>(<span class="st">"group"</span>, model_1) <span class="sc">%&gt;%</span></span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data.frame</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div class="kable-table">
+<table class="table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th style="text-align: left;">group</th>
+<th style="text-align: right;">fit</th>
+<th style="text-align: right;">se</th>
+<th style="text-align: right;">lower</th>
+<th style="text-align: right;">upper</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">1</td>
+<td style="text-align: right;">3.833333</td>
+<td style="text-align: right;">0.3339362</td>
+<td style="text-align: right;">3.164887</td>
+<td style="text-align: right;">4.501779</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">2</td>
+<td style="text-align: right;">5.933333</td>
+<td style="text-align: right;">0.3339362</td>
+<td style="text-align: right;">5.264887</td>
+<td style="text-align: right;">6.601779</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>model_table_4 <span class="ot">&lt;-</span> child_l2_data <span class="sc">%&gt;%</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">lm</span>(<span class="at">formula =</span> Oral_Production_Post <span class="sc">~</span> Oral_Production_Pre <span class="sc">+</span> group)</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(model_table_4)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = Oral_Production_Post ~ Oral_Production_Pre + group, 
+    data = .)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-41.942 -21.363  -4.573  21.869  66.482 
+
+Coefficients:
+                    Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)          28.0406     5.2577   5.333 1.72e-06 ***
+Oral_Production_Pre   1.3947     0.4662   2.991   0.0041 ** 
+group2              -15.9727     6.9541  -2.297   0.0253 *  
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 26.93 on 57 degrees of freedom
+Multiple R-squared:  0.2022,    Adjusted R-squared:  0.1742 
+F-statistic: 7.222 on 2 and 57 DF,  p-value: 0.001601</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="fu">effect</span>(<span class="st">"group"</span>, model_table_4) <span class="sc">%&gt;%</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data.frame</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> group,</span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>             <span class="at">y =</span> fit,</span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>             <span class="at">ymin =</span> lower,</span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>             <span class="at">ymax =</span> upper)) <span class="sc">+</span></span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_errorbar</span>() <span class="sc">+</span></span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_label</span>(<span class="fu">aes</span>(<span class="at">label =</span> <span class="fu">format</span>(fit, <span class="at">digits =</span> <span class="dv">2</span>)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="2023-09-01_files/figure-html/unnamed-chunk-12-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+</section>
+<section id="data-visualization" class="level1">
+<h1>Data Visualization</h1>
+<p>You should always explore your data before running inferential statistics, based on your hypotheses. The inferential stats will confirm or refute your hypotheses.</p>
+<section id="visualizations-by-group" class="level2">
+<h2 class="anchored" data-anchor-id="visualizations-by-group">Visualizations by Group</h2>
+<p>Oral production mean by group. We need to transform the data first, to have pre and post tests as values in a variable.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>oral_production <span class="ot">&lt;-</span> child_l2_data <span class="sc">%&gt;%</span> </span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(Participant, Group, Oral_Production_Pre, Oral_Production_Post) <span class="sc">%&gt;%</span> </span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(<span class="at">cols =</span> <span class="fu">c</span>(Oral_Production_Pre, Oral_Production_Post)) <span class="sc">%&gt;%</span> </span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">group =</span> <span class="fu">factor</span>(Group),</span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>         <span class="at">name =</span> <span class="fu">factor</span>(name,</span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>                       <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"Oral_Production_Pre"</span>,</span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>                                  <span class="st">"Oral_Production_Post"</span>)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>We can now create a boxplot by group and type of test.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>oral_production <span class="sc">%&gt;%</span> </span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> group,</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>             <span class="at">y =</span> value,</span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>             <span class="at">color =</span> name)) <span class="sc">+</span></span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_boxplot</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="2023-09-01_files/figure-html/unnamed-chunk-14-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
 
 
+</section>
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">

@@ -1,4 +1,254 @@
 ---
 title: "September 1, 2023"
+df-print: kable
 ---
+
+# Data
+
+For this tutorial, we will be reproduction the data analysis at an Open Science repository.
+We are going to be using data from the [IRIS database](https://www.iris-database.org/details/8Inx1-lXnb6. 
+
+Here's an excerpt of the study's abstract:
+
+> This study investigated the effects of task complexity on child learners’ second language (L2) gains, the relationship between aptitude and L2 development, and the extent to which task complexity influences this relationship when recasts are provided. Sixty child EFL learners were assigned to two experimental groups. During the treatment, one group completed simple information transmission tasks, whereas the other group performed complex decision-making tasks. In response to errors in the use of the present third person singular verb forms, participants received recasts. L2 development was measured through oral production, written production, and elicited imitation tests. Aptitude was assessed through LLAMA D, LLAMA E, and LLAMA F. 
+
+Our first step it to load the `tidyverse` library (RStudio will prompt you to install it).
+
+```{r}
+#| echo: true
+#| eval: true
+#| warning: false
+#| message: false
+# load library for data analysis
+library(tidyverse)
+```
+
+Download the data and add it to your project inside a folder called `data`.
+
+Now we read the data in:
+
+```{r}
+#| echo: true
+#| eval: true
+#| warning: false
+#| message: false
+# read data in
+child_l2_data <- read_csv("data/Data_Kourtali_Revesz.csv")
+```
+
+It's always a good idea to inspect the data to make sure everything looks good.
+
+```{r}
+#| echo: true
+#| eval: true
+#| warning: false
+#| message: false
+glimpse(child_l2_data)
+```
+
+
+# Participants (page 187)
+
+> The final pool of participants included 26 females and 34 males
+
+There should be 60 participants in the data.
+
+> The study employed a pretest–posttest design with two treatment sessions. Par- ticipants were assigned to one of two experimental groups through stratified random sampling, taking into account their pretest, proficiency, aptitude test results, and length of prior English study.
+
+```{r}
+#| echo: true
+#| eval: true
+#| warning: false
+#| message: false
+child_l2_data %>% 
+  count(Group)
+```
+
+
+
+> A series of independent-samples t-tests targeting the variables length of previous English study, and performance on the proficiency test confirmed that the two groups were comparable.
+
+```{r}
+#| echo: true
+#| eval: true
+#| warning: false
+#| message: false
+group_1_data <- child_l2_data %>%
+  filter(Group == 1)
+
+group_2_data <- child_l2_data %>%
+  filter(Group == 2)
+```
+
+> English study,t=0.33,p=.75,d=0.08
+
+```{r}
+#| echo: true
+#| eval: true
+#| warning: false
+#| message: false
+t.test(group_1_data$Duration_English, 
+       group_2_data$Duration_English)
+```
+
+> proficiency,t=0.07,p=.95,d=0.01
+
+```{r}
+#| echo: true
+#| eval: true
+#| warning: false
+#| message: false
+t.test(group_1_data$Listening, 
+       group_2_data$Listening)
+```
+
+
+
+
+T-test Effect Size using Cohen’s d Measure
+https://www.datanovia.com/en/lessons/t-test-effect-size-using-cohens-d-measure/
+
+```{r}
+#| echo: true
+#| eval: true
+#| warning: false
+#| message: false
+library(rstatix)
+child_l2_data %>%
+  cohens_d(Duration_English ~ Group)
+
+child_l2_data %>%
+  cohens_d(Listening ~ Group)
+```
+
+# Statistical Analyses (page 196)
+
+## Table 1 Descriptive statistics for the perceived mental effort scale
+
+The standard error is calculated by dividing the standard deviation by the sample size's square root. The standard error is most useful as a means of calculating a confidence interval. For a large sample, a 95% confidence interval is obtained as the values 1.96×SE either side of the mean (https://www.ncbi.nlm.nih.gov/pmc/articles/PMC1255808).
+
+```{r}
+#| echo: true
+#| eval: true
+#| warning: false
+#| message: false
+child_l2_data %>%
+  group_by(Group) %>%
+  summarize(n = n(),
+            mean_ME_1 = mean(ME_1),
+            sd_ME_1 = sd(ME_1),
+            mean_ME_2 = mean(ME_2),
+            sd_ME_2 = sd(ME_2)) %>%
+  mutate(lower_ci_ME_1 = mean_ME_1 - qt(1 - (.05 / 2), n - 1) * sd_ME_1/sqrt(n),
+         upper_ci_ME_1 = mean_ME_1 + qt(1 - (.05 / 2), n - 1) * sd_ME_1/sqrt(n),
+         lower_ci_ME_2 = mean_ME_2 - qt(1 - (.05 / 2), n - 1) * sd_ME_2/sqrt(n),
+         upper_ci_ME_2 = mean_ME_2 + qt(1 - (.05 / 2), n - 1) * sd_ME_2/sqrt(n))
+```
+
+## Table 4 Results for the linear regression models examining the effects of task complexity on the oral and written production tests
+
+The way it is in the paper: group is a numeric variable
+
+```{r}
+#| echo: true
+#| eval: true
+#| warning: false
+#| message: false
+model_1 <- lm(ME_1 ~ Group, child_l2_data)
+
+library(effects)
+effect("Group", model_1) %>%
+  data.frame()
+```
+
+
+```{r}
+#| echo: true
+#| eval: true
+#| warning: false
+#| message: false
+# linear regression (recreation of table 4 on page 200)
+model_table_4 <- child_l2_data %>%
+  lm(formula = Oral_Production_Post ~ Oral_Production_Pre + Group)
+
+summary(model_table_4)
+
+effect("Group", model_table_4) %>%
+  data.frame() %>%
+  ggplot(aes(x = Group,
+             y = fit,
+             ymin = lower,
+             ymax = upper)) +
+  geom_errorbar() +
+  geom_label(aes(label = format(fit, digits = 2)))
+```
+
+
+The correct way: group is a categorical (factor) variable
+
+```{r}
+#| echo: true
+#| eval: true
+#| warning: false
+#| message: false
+child_l2_data <- child_l2_data %>%
+  mutate(group = factor(Group))
+
+model_1 <- lm(ME_1 ~ group, child_l2_data)
+
+effect("group", model_1) %>%
+  data.frame()
+
+model_table_4 <- child_l2_data %>%
+  lm(formula = Oral_Production_Post ~ Oral_Production_Pre + group)
+
+summary(model_table_4)
+
+effect("group", model_table_4) %>%
+  data.frame() %>%
+  ggplot(aes(x = group,
+             y = fit,
+             ymin = lower,
+             ymax = upper)) +
+  geom_errorbar() +
+  geom_label(aes(label = format(fit, digits = 2)))
+```
+
+# Data Visualization
+
+You should always explore your data before running inferential statistics, based on your hypotheses. The inferential stats will confirm or refute your hypotheses.
+
+## Visualizations by Group
+
+Oral production mean by group. We need to transform the data first, to have pre and post tests as values in a variable.
+
+```{r}
+#| echo: true
+#| eval: true
+#| warning: false
+#| message: false
+oral_production <- child_l2_data %>% 
+  select(Participant, Group, Oral_Production_Pre, Oral_Production_Post) %>% 
+  pivot_longer(cols = c(Oral_Production_Pre, Oral_Production_Post)) %>% 
+  mutate(group = factor(Group),
+         name = factor(name,
+                       levels = c("Oral_Production_Pre",
+                                  "Oral_Production_Post")))
+```
+
+
+We can now create a boxplot by group and type of test.
+
+```{r}
+#| echo: true
+#| eval: true
+#| warning: false
+#| message: false
+oral_production %>% 
+  ggplot(aes(x = group,
+             y = value,
+             color = name)) +
+  geom_boxplot()
+```
+
 
