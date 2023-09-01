@@ -2,3 +2,6 @@
 title: "R-Ladies Tucson"
 ---
 
+# Tutorials
+
+* September 1, 2023: [Reproducing Open Science Research](2023-09-01.html)
