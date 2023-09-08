@@ -8,8 +8,10 @@ website:
     left:
       - href: index.qmd
         text: Home
-      - href: 2023-09-01.qmd
-        text: OpenSci Tutorial
+      - text: OpenSci Tutorials
+        menu: 
+          - href: 2023-09-01.qmd
+          - href: 2023-09-15.qmd
       - about.qmd
 
 format:
