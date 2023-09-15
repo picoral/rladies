@@ -101,6 +101,116 @@ data %>%
             lower = mean - se)
   
 ```
+# Research questions
+
+> What are the impacts of time, neighborhood density in the learning environment, and cross-linguistic similarity on episodic memory for novel words? (page 986)
+
+## Descriptive visualization (before running stats)
+
+> We hypothesized, first, that episodic memory for novel words may decrease over time.
+
+> The interval between experimental Day 1 and Day 2 was either 24 hours or 1 week.
+
+
+```{r}
+data %>% 
+  group_by(Experiment, FC) %>%
+  summarize(mean_acc = mean(ACC)) %>% 
+  mutate(diff = diff(mean_acc)) %>% 
+  ggplot(aes(x = FC,
+             y = mean_acc)) +
+  geom_line(aes(group = 1)) +
+  geom_label(aes(label = round(mean_acc, 2))) +
+  facet_wrap(~Experiment) +
+  labs(caption = "procedure chart on page 990")
+  
+```
+
+
+### Results from a model
+
+Let's run a model with the effect of the interaction of `Experiment` and `FC`.
+
+```{r}
+model_experiment <- glm(ACC ~ Experiment:FC,
+                        data = data,
+                        family = binomial)
+
+summary(model_experiment)
+```
+
+The variance explained for this model is very low:
+
+```{r}
+# McFadden's R-squared for model
+with(summary(model_experiment), 1 - deviance/null.deviance)
+```
+
+Let's look at the effects:
+
+```{r}
+library(effects)
+effect("Experiment:FC", model_experiment) %>% 
+  data.frame() %>% 
+   ggplot(aes(x = FC,
+             y = fit,
+             ymin = lower,
+             ymax = upper)) +
+  geom_line(aes(group = 1)) +
+  geom_errorbar() +
+  geom_label(aes(label = round(fit, 2))) +
+  facet_wrap(~Experiment)
+```
+
+
+## Descriptive visualization (before running stats)
+
+> Second, we hypothesized that, to the extent that neighborhood density in the learning environment impacts episodic memory, learning many novel neighbors for an existing word may lead to decreased episodic memory for these novel neighbors
+
+* s1: one neighbor for List B base words (one-neighbor condition) and five neighbors for List C base words (five-neighbors condition). No neighbors were presented for List A base words (zero-neighbors condition). 
+
+* s2: one neighbor for List C and five for List A, whereas no neighbors were presented for List B base words.
+
+* s3: one neighbor for List A and five for List B, whereas no neighbors were presented for List C base words.
+
+Stimuli have either 1 or 5 neighbors:
+
+```{r}
+data %>% count(nb_neighbors)
+```
+
+```{r}
+data %>% 
+  group_by(FC, Experiment, nb_neighbors) %>%
+  mutate(nb_neighbors = factor(nb_neighbors)) %>% 
+  summarize(mean_acc = mean(ACC)) %>% 
+  ggplot(aes(x = FC,
+             y = mean_acc,
+             color = nb_neighbors)) +
+  geom_line(aes(group = nb_neighbors)) +
+  geom_label(aes(label = round(mean_acc, 2))) +
+  facet_wrap(~Experiment) +
+  labs(caption = "procedure chart on page 990")
+  
+```
+
+
+```{r}
+data %>% 
+  group_by(FC, Experiment, Training_group) %>%
+  summarize(mean_acc = mean(ACC)) %>% 
+  ggplot(aes(x = FC,
+             y = mean_acc,
+             color = Training_group)) +
+  geom_line(aes(group = Training_group)) +
+  geom_label(aes(label = round(mean_acc, 2))) +
+  facet_wrap(~Experiment) +
+  labs(caption = "procedure chart on page 990")
+  
+```
+
+> Finally, we hypothesized that, to the extent that cross-linguistic similarity impacts episodic memory, novel neighbors to words that overlap across languages may be easier to recognize.
+
 # Generalized linear mixed-effects model 
 
 > Fixed effects included session for forced-choice timing (FC A, before a consolida- tion period, vs. FC B, after a consolidation period), number of novel neighbors associated with the base word during training (1 vs. 5), and NLD (measure of orthographic distance for translation equivalents across languages). Their in- teractions were also included. Categorical predictors were effects-coded (−.5 vs. .5) to allow for the interpretation of main effects. NLD was standardized with mean of 0 and standard deviation of 1. [...] We also added English frequency as a stan- dardized covariate, as frequency is a strong predictor of the speed of lexical access during language processing (e.g., Whitford & Titone, 2012). [...] The final random effects structure included a random intercept by participants, a random intercept by items, a correlated random slope for forced-choice task timing (before vs. af- ter consolidation) by participants, and a correlated random slope for number of neighbors (one neighbor vs. five neighbors) by participants.
@@ -113,8 +223,9 @@ data <- data %>%
   mutate(NLD_scaled = scale(NLD),
          Frequency_scaled = scale(Frequency))
 
-model <- glmer(ACC ~ nb_neighbors_dev * FC_dev * NLD_scaled + Exp_dev + Frequency_scaled +
-               (1 + nb_neighbors_dev + FC_dev|Subject) + (1|Stimuli), 
+model <- glmer(ACC ~ nb_neighbors_dev * FC_dev * NLD_scaled + 
+                 Exp_dev + Frequency_scaled +
+                 (1 + nb_neighbors_dev + FC_dev|Subject) + (1|Stimuli), 
                family = binomial, 
                data = data)
 
