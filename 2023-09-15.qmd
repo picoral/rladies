@@ -3,16 +3,15 @@ title: "Reproducing Open Science Research 2"
 df-print: kable
 ---
 
-**September 15, 10am to 11am. [Register to receive zoom link for meeting](https://arizona.zoom.us/meeting/register/tZcpd-quqzsuE9PiZc56k3sUJ1vkKawQRcu0)**
+**September 15, 10am to 11am.**
 
 For this tutorial, we will be replicating some of the analysis in *Palma, P., Marin, M. F., Onishi, K. H., & Titone, D. (2022). Learning, inside and out: Prior linguistic knowledge and learning environment impact word learning in bilingual individuals. Language Learning, 72(4), 980-1016*. Paper can be found at <https://onlinelibrary.wiley.com/doi/abs/10.1111/lang.12501>
 
 Data, code, and more information can be found at <https://osf.io/69seu/>
 
-
 # Abstract
 
-> Although several studies have focused on novel word learning and lexicalization in (presumably) monolingual speakers, less is known about how bilinguals add novel words to their mental lexicon. In this study we trained 33 English–French bilinguals on novel word-forms that were neighbors to English words with no existing neighbors. The number of novel neighbors to each English word varied, as did the cross-linguistic orthographic overlap between the English word and its French translation. We assessed episodic memory and lexicalization of the novel words before and after a consolidation period. Cross-linguistic similarity enhanced episodic memory of novel neighbors only when neighborhood density among the novel neighbors was low. We also found evidence that novel neighbors of English words with high cross-linguistic similarity became lexicalized after a consolidation period. Overall, the results suggest that similarity to preexisting lexical representations crucially impacted lexicalization of novel words by bilingual individuals.
+> Although several studies have focused on novel word learning and lexicalization in (presumably) monolingual speakers, less is known about how bilinguals add novel words to their mental lexicon. In this study we trained 33 English--French bilinguals on novel word-forms that were neighbors to English words with no existing neighbors. The number of novel neighbors to each English word varied, as did the cross-linguistic orthographic overlap between the English word and its French translation. We assessed episodic memory and lexicalization of the novel words before and after a consolidation period. Cross-linguistic similarity enhanced episodic memory of novel neighbors only when neighborhood density among the novel neighbors was low. We also found evidence that novel neighbors of English words with high cross-linguistic similarity became lexicalized after a consolidation period. Overall, the results suggest that similarity to preexisting lexical representations crucially impacted lexicalization of novel words by bilingual individuals.
 
 # Data
 
@@ -33,9 +32,10 @@ Now we can read the data in. Remember to download the file and place it in a dir
 data <- read_csv("data/OSF_word_learning_FC.csv") %>% 
   filter(!is.na(ACC))
 ```
+
 # Participants
 
-> One participant was excluded because of an error in their assignment to the testing condition. Thus, 32 participants were included in the analyses reported below. 
+> One participant was excluded because of an error in their assignment to the testing condition. Thus, 32 participants were included in the analyses reported below.
 
 There are multiple measures per participant, so we need to run `distinct()` on the `Subject` variable to get number of participants. The `nrow()` tells use how many row (in this case each row/observation is a participant).
 
@@ -69,7 +69,7 @@ data %>%
   summarize(mean(L1_subjective_fluency))
 ```
 
-> There was more variability in terms of French proficiency, mean = 4.69, SD = 2.09, 95% CI [3.97, 5.41], range = 1–9. 
+> There was more variability in terms of French proficiency, mean = 4.69, SD = 2.09, 95% CI \[3.97, 5.41\], range = 1--9.
 
 Let's replicate these stats (don't forget `distinct()`):
 
@@ -86,7 +86,7 @@ data %>%
             lower = mean - se)
 ```
 
-> The mean age of acquisition of French was 8.58 years, SD = 4.36, 95% CI [7.07, 10.10], range = 3–18, indicating that all of the participants were sequential bilinguals.
+> The mean age of acquisition of French was 8.58 years, SD = 4.36, 95% CI \[7.07, 10.10\], range = 3--18, indicating that all of the participants were sequential bilinguals.
 
 ```{r}
 data %>% 
@@ -101,6 +101,7 @@ data %>%
             lower = mean - se)
   
 ```
+
 # Research questions
 
 > What are the impacts of time, neighborhood density in the learning environment, and cross-linguistic similarity on episodic memory for novel words? (page 986)
@@ -110,7 +111,6 @@ data %>%
 > We hypothesized, first, that episodic memory for novel words may decrease over time.
 
 > The interval between experimental Day 1 and Day 2 was either 24 hours or 1 week.
-
 
 ```{r}
 data %>% 
@@ -125,7 +125,6 @@ data %>%
   labs(caption = "procedure chart on page 990")
   
 ```
-
 
 ### Results from a model
 
@@ -162,16 +161,15 @@ effect("Experiment:FC", model_experiment) %>%
   facet_wrap(~Experiment)
 ```
 
-
 ## Descriptive visualization (before running stats)
 
 > Second, we hypothesized that, to the extent that neighborhood density in the learning environment impacts episodic memory, learning many novel neighbors for an existing word may lead to decreased episodic memory for these novel neighbors
 
-* s1: one neighbor for List B base words (one-neighbor condition) and five neighbors for List C base words (five-neighbors condition). No neighbors were presented for List A base words (zero-neighbors condition). 
+-   s1: one neighbor for List B base words (one-neighbor condition) and five neighbors for List C base words (five-neighbors condition). No neighbors were presented for List A base words (zero-neighbors condition).
 
-* s2: one neighbor for List C and five for List A, whereas no neighbors were presented for List B base words.
+-   s2: one neighbor for List C and five for List A, whereas no neighbors were presented for List B base words.
 
-* s3: one neighbor for List A and five for List B, whereas no neighbors were presented for List C base words.
+-   s3: one neighbor for List A and five for List B, whereas no neighbors were presented for List C base words.
 
 Stimuli have either 1 or 5 neighbors:
 
@@ -194,7 +192,6 @@ data %>%
   
 ```
 
-
 ```{r}
 data %>% 
   group_by(FC, Experiment, Training_group) %>%
@@ -211,9 +208,9 @@ data %>%
 
 > Finally, we hypothesized that, to the extent that cross-linguistic similarity impacts episodic memory, novel neighbors to words that overlap across languages may be easier to recognize.
 
-# Generalized linear mixed-effects model 
+# Generalized linear mixed-effects model
 
-> Fixed effects included session for forced-choice timing (FC A, before a consolida- tion period, vs. FC B, after a consolidation period), number of novel neighbors associated with the base word during training (1 vs. 5), and NLD (measure of orthographic distance for translation equivalents across languages). Their in- teractions were also included. Categorical predictors were effects-coded (−.5 vs. .5) to allow for the interpretation of main effects. NLD was standardized with mean of 0 and standard deviation of 1. [...] We also added English frequency as a stan- dardized covariate, as frequency is a strong predictor of the speed of lexical access during language processing (e.g., Whitford & Titone, 2012). [...] The final random effects structure included a random intercept by participants, a random intercept by items, a correlated random slope for forced-choice task timing (before vs. af- ter consolidation) by participants, and a correlated random slope for number of neighbors (one neighbor vs. five neighbors) by participants.
+> Fixed effects included session for forced-choice timing (FC A, before a consolida- tion period, vs. FC B, after a consolidation period), number of novel neighbors associated with the base word during training (1 vs. 5), and NLD (measure of orthographic distance for translation equivalents across languages). Their in- teractions were also included. Categorical predictors were effects-coded (−.5 vs. .5) to allow for the interpretation of main effects. NLD was standardized with mean of 0 and standard deviation of 1. \[...\] We also added English frequency as a stan- dardized covariate, as frequency is a strong predictor of the speed of lexical access during language processing (e.g., Whitford & Titone, 2012). \[...\] The final random effects structure included a random intercept by participants, a random intercept by items, a correlated random slope for forced-choice task timing (before vs. af- ter consolidation) by participants, and a correlated random slope for number of neighbors (one neighbor vs. five neighbors) by participants.
 
 ```{r}
 library(lme4)
@@ -232,7 +229,6 @@ model <- glmer(ACC ~ nb_neighbors_dev * FC_dev * NLD_scaled +
 summary(model)
 ```
 
-
 The authors use this `report` library. I'm not sure I'd recommend it myself.
 
 ```{r}
@@ -241,11 +237,9 @@ report(model)
 report_effectsize(model)
 ```
 
-
 $R^2$ (read r squared) shows how much of the variance in the data is explained by the idependent variables in the model.
 
 ```{r}
 library(MuMIn)
 r.squaredGLMM(model)
 ```
-
