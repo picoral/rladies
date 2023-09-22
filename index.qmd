@@ -4,6 +4,6 @@ title: "R-Ladies Tucson"
 
 # Tutorials
 
-* September 29, 2023: [Reproducing Open Science Research 3](2023-09-29.html)
+* October 6, 2023: [Reproducing Open Science Research 3](2023-09-29.html)
 * September 15, 2023: [Reproducing Open Science Research 2](2023-09-15.html)
 * September 1, 2023: [Reproducing Open Science Research 1](2023-09-01.html)
