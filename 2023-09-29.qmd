@@ -1,0 +1,5 @@
+---
+title: "Reproducing Open Science Research 3"
+df-print: kable
+---
+
