@@ -26,5 +26,26 @@
     "title": "Reproducing Open Science Research 2",
     "section": "Descriptive visualization (before running stats)",
     "text": "Descriptive visualization (before running stats)\n\nSecond, we hypothesized that, to the extent that neighborhood density in the learning environment impacts episodic memory, learning many novel neighbors for an existing word may lead to decreased episodic memory for these novel neighbors\n\n\ns1: one neighbor for List B base words (one-neighbor condition) and five neighbors for List C base words (five-neighbors condition). No neighbors were presented for List A base words (zero-neighbors condition).\ns2: one neighbor for List C and five for List A, whereas no neighbors were presented for List B base words.\ns3: one neighbor for List A and five for List B, whereas no neighbors were presented for List C base words.\n\nStimuli have either 1 or 5 neighbors:\n\ndata %&gt;% count(nb_neighbors)\n\n\n\n\n\nnb_neighbors\nn\n\n\n\n\n1\n1240\n\n\n5\n1220\n\n\n\n\n\n\n\ndata %&gt;% \n  group_by(FC, Experiment, nb_neighbors) %&gt;%\n  mutate(nb_neighbors = factor(nb_neighbors)) %&gt;% \n  summarize(mean_acc = mean(ACC)) %&gt;% \n  ggplot(aes(x = FC,\n             y = mean_acc,\n             color = nb_neighbors)) +\n  geom_line(aes(group = nb_neighbors)) +\n  geom_label(aes(label = round(mean_acc, 2))) +\n  facet_wrap(~Experiment) +\n  labs(caption = \"procedure chart on page 990\")\n\n`summarise()` has grouped output by 'FC', 'Experiment'. You can override using\nthe `.groups` argument.\n\n\n\n\n\n\ndata %&gt;% \n  group_by(FC, Experiment, Training_group) %&gt;%\n  summarize(mean_acc = mean(ACC)) %&gt;% \n  ggplot(aes(x = FC,\n             y = mean_acc,\n             color = Training_group)) +\n  geom_line(aes(group = Training_group)) +\n  geom_label(aes(label = round(mean_acc, 2))) +\n  facet_wrap(~Experiment) +\n  labs(caption = \"procedure chart on page 990\")\n\n`summarise()` has grouped output by 'FC', 'Experiment'. You can override using\nthe `.groups` argument.\n\n\n\n\n\n\nFinally, we hypothesized that, to the extent that cross-linguistic similarity impacts episodic memory, novel neighbors to words that overlap across languages may be easier to recognize."
+  },
+  {
+    "objectID": "2023-09-29.html",
+    "href": "2023-09-29.html",
+    "title": "Reproducing Open Science Research 3",
+    "section": "",
+    "text": "September 22, 10am to 11am. Register\nFor this tutorial, we will be replicating some of the analysis in Chappell, W. & Kanwit, M. (2021). Do Learners Connect Sociophonetic Variation with Regional and Social Characteristics? The Case of L2 Perception of Spanish Aspiration. Studies in Second Language Acquisition. 44(1). 1–25.\nData can be found at https://www.iris-database.org/details/MQbI5-rz7z3"
+  },
+  {
+    "objectID": "2023-09-29.html#participants",
+    "href": "2023-09-29.html#participants",
+    "title": "Reproducing Open Science Research 3",
+    "section": "Participants",
+    "text": "Participants\n\nSeventy-six language learners\n\nWe have multiple observations per participants, so to get to number of participants we need to use distinct()\n\nl2_span_perception %&gt;% \n  distinct(Participant) %&gt;% \n  nrow()\n\n[1] 76\n\n\nTable 1 recreation (page 193):\n\nl2_span_perception %&gt;% \n  distinct(Participant, Gender) %&gt;% \n  count(Gender)\n\n\n\n\n\nGender\nn\n\n\n\n\nFemale\n55\n\n\nMale\n21\n\n\n\n\n\n\n\nl2_span_perception %&gt;% \n  distinct(Participant, Age) %&gt;% \n  summarize(min_age = min(Age),\n            max_age = max(Age),\n            mean_age = mean(Age),\n            median_age = median(Age))\n\n\n\n\n\nmin_age\nmax_age\nmean_age\nmedian_age\n\n\n\n\n18\n57\n23.64474\n21\n\n\n\n\n\n\n\nl2_span_perception %&gt;% \n  distinct(Participant, Education) %&gt;% \n  count(Education, sort = TRUE)\n\n\n\n\n\nEducation\nn\n\n\n\n\nSome college\n43\n\n\nCollege graduate\n27\n\n\nHigh school\n5\n\n\nSome high school\n1"
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "R-Ladies Tucson",
+    "section": "",
+    "text": "Tutorials\n\nSeptember 29, 2023: Reproducing Open Science Research 3\nSeptember 15, 2023: Reproducing Open Science Research 2\nSeptember 1, 2023: Reproducing Open Science Research 1"
   }
 ]

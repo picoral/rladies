@@ -3,3 +3,152 @@ title: "Reproducing Open Science Research 3"
 df-print: kable
 ---
 
+**September 22, 10am to 11am. [Register](https://arizona.zoom.us/meeting/register/tZIod-6urjksHdyNtrnlOfB49lh0hKgOLFQ5)**
+
+For this tutorial, we will be replicating some of the analysis in [*Chappell, W. & Kanwit, M. (2021). Do Learners Connect Sociophonetic Variation with Regional and Social Characteristics? The Case of L2 Perception of Spanish Aspiration. Studies in Second Language Acquisition. 44(1). 1–25.*](https://scholar.google.com/scholar?hl=en&as_sdt=0%2C3&q=Chappell%2C+W.+%26+Kanwit%2C+M.+%282021%29.+Do+Learners+Connect+Sociophonetic+Variation+with+Regional+and+Social+Characteristics%3F+The+Case+of+L2+Perception+of+Spanish+Aspiration.+Studies+in+Second+Language+Acquisition.+44%281%29.+1%E2%80%9325.&btnG=#:~:text=include%20citations-,%5BPDF%5D%20cambridge.org,-Do%20learners%20connect)
+
+Data can be found at <https://www.iris-database.org/details/MQbI5-rz7z3>
+
+# Overview of study
+
+* Matched-guise test targeting coda /s/ in Spanish
+* Question: Do L2 Spanish learners identify native speakers' social characteristics based on phonetic variants
+
+# Data
+
+Our first step it to load the `tidyverse` library (RStudio will prompt you to install it).
+
+```{r}
+#| echo: true
+#| eval: true
+#| warning: false
+#| message: false
+# load library for data analysis
+library(tidyverse)
+```
+
+Now we can read the data in. Remember to download the file and place it in a directory called `data` in your project. 
+
+```{r}
+#| echo: true
+#| eval: true
+#| warning: false
+#| message: false
+l2_span_perception <- read_csv("data/L2PerceptionsofAspirationAnonymized.csv")
+```
+
+## Participants
+
+> Seventy-six language learners
+
+We have multiple observations per participants, so to get to number of participants we need to use `distinct()`
+
+```{r}
+#| echo: true
+#| eval: true
+l2_span_perception %>% 
+  distinct(Participant) %>% 
+  nrow()
+```
+
+Table 1 recreation (page 193):
+
+```{r}
+#| echo: true
+#| eval: true
+l2_span_perception %>% 
+  distinct(Participant, Gender) %>% 
+  count(Gender)
+```
+
+```{r}
+#| echo: true
+#| eval: true
+l2_span_perception %>% 
+  distinct(Participant, Age) %>% 
+  summarize(min_age = min(Age),
+            max_age = max(Age),
+            mean_age = mean(Age),
+            median_age = median(Age))
+```
+
+
+```{r}
+#| echo: true
+#| eval: true
+l2_span_perception %>% 
+  distinct(Participant, Education) %>% 
+  count(Education, sort = TRUE)
+```
+
+
+# Research questions
+
+* Are L2-Spanish language learners bale to perceive the social meanings of coda /s/ in their L2?
+
+> If so, what social properties will L2 Learners associate with coda [h]?
+
+```{r}
+#| echo: true
+#| eval: true
+l2_span_perception %>% 
+  ggplot(aes(x = VariantHeard,
+             y = PerceivedAge)) +
+  geom_boxplot()
+```
+
+```{r}
+#| echo: true
+#| eval: true
+l2_span_perception %>% 
+  group_by(VariantHeard) %>% 
+  summarize(mean_age = mean(PerceivedAge)) %>% 
+  ggplot(aes(x = VariantHeard,
+             y = mean_age)) +
+  geom_col()
+```
+
+
+```{r}
+#| echo: true
+#| eval: true
+l2_span_perception %>% 
+  group_by(VariantHeard, SpeakerType, PerceivedSpeakerOrigin) %>% 
+  summarize(count = n()) %>% 
+  mutate(total = sum(count),
+         percent = round((count/total)*100, 2)) %>% 
+  ggplot(aes(x = PerceivedSpeakerOrigin, y = SpeakerType,
+             fill = count)) +
+  geom_tile() +
+  geom_label(aes(label = paste0(percent, "%")),
+             fill = "white") +
+  facet_wrap(~VariantHeard) +
+  scale_fill_gradient(low = "lightgray" , high = "black")
+```
+
+# Factor Analysis
+
+> "[...] we conducted an FA and used the Kaiser Rules to establish which properties should be combined and analyzed as joint factors in the model-construction procedure"
+
+```{r}
+#| echo: true
+#| eval: true
+indices <- l2_span_perception %>% 
+  select(Intelligent:Feminine)
+
+fa <- factanal(x = indices, factors = 3) 
+fa
+```
+
+```{r}
+#| echo: true
+#| eval: true
+loadings <- fa$loadings
+dimnames(loadings)[[1]]
+```
+
+
+```{r}
+loadings[1:8]
+```
+
