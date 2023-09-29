@@ -1,0 +1,10 @@
+---
+title: "Reading multiple files in R"
+format: html
+df-print: paged
+execute: 
+  echo: true
+  warning: false
+---
+
+For this tutorial on how to read data in R, we will be using bilingual children production from the (Corpus of bilingual children's speech on kaggle)[https://www.kaggle.com/datasets/rtatman/corpus-of-bilingual-childrens-speech]

@@ -42,6 +42,13 @@
     "text": "Live Tutorials\n\nOctober 6, 2023: Reproducing Open Science Research 3\nSeptember 15, 2023: Reproducing Open Science Research 2\nSeptember 1, 2023: Reproducing Open Science Research 1\n\n\n\nRecorded Lessons\n\nReading and checking data in R"
   },
   {
+    "objectID": "lesson-02.html",
+    "href": "lesson-02.html",
+    "title": "Reading multiple files in R",
+    "section": "",
+    "text": "For this tutorial on how to read data in R, we will be using bilingual children production from the (Corpus of bilingual children’s speech on kaggle)[https://www.kaggle.com/datasets/rtatman/corpus-of-bilingual-childrens-speech]"
+  },
+  {
     "objectID": "lesson-01.html",
     "href": "lesson-01.html",
     "title": "Reading and checking data",
