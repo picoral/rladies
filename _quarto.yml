@@ -13,6 +13,9 @@ website:
           - href: 2023-09-01.qmd
           - href: 2023-09-15.qmd
           - href: 2023-09-29.qmd
+      - text: Recorded Lessons
+        menu: 
+          - href: lesson-01.qmd
       - about.qmd
 
 format:

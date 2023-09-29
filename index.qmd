@@ -2,8 +2,12 @@
 title: "R-Ladies Tucson"
 ---
 
-# Tutorials
+# Live Tutorials
 
 * October 6, 2023: [Reproducing Open Science Research 3](2023-09-29.html)
 * September 15, 2023: [Reproducing Open Science Research 2](2023-09-15.html)
 * September 1, 2023: [Reproducing Open Science Research 1](2023-09-01.html)
+
+# Recorded Lessons
+
+* [Reading and checking data in R](lesson-01.html)
