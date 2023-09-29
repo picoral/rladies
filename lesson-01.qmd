@@ -1,0 +1,91 @@
+---
+title: "Reading and checking data"
+format: html
+df-print: paged
+execute: 
+  echo: true
+  warning: false
+---
+
+For this tutorial on how to read data in R, we will be using the data available as complementary material for [Tagliamonte's (2011) Variationist Sociolinguistics: Change, Observation, Interpretation textbook](https://bcs.wiley.com/he-bcs/Books?action=resource&bcsId=6632&itemId=1405135913&resourceId=25370).
+
+This tutorial will be using [posit.cloud](https://posit.cloud/) for our IDE (Integrated Development Environment). You can create a free account to follow along.
+
+# Video demonstrations
+
+{{< video https://youtu.be/jZEHvkqZb8c >}}
+
+{{< video https://youtu.be/CJjcOxkqqUs >}}
+
+# Getting started
+
+We'll be using two packages for this tutorial. RStudio should prompt you to install these once you save your `.Rmd` file.
+
+```{r}
+#| label: 'setup'
+library(tidyverse)
+library(readxl)
+```
+
+We can now read our data in (remember to download the data from the website, and place it in a `data` folder in your project).
+
+```{r}
+#| label: read
+that_data <- read_excel("data/data_set.xlsx")
+```
+
+# How many observations per participant?
+
+Once you read your data, you should check to see if all your values are in the data. We can use `count()` for that.
+
+```{r}
+that_data %>% 
+  count(Indiv, sort = TRUE)
+```
+
+# Checking values of categorical variables
+
+When coding data, humans often make mistakes (misspell category names, for example).
+We can count how many of each dependent variable we have in our data using `count()` again.
+
+```{r}
+that_data %>% 
+  count(Dep.var)
+```
+
+Let's do the same with verbs.
+
+```{r}
+that_data %>% 
+  count(Verbs.1)
+```
+
+This data is of course very clean. I've changed the original data, to insert an error in one of the value names. We will read in that data, check the values, and make the changes to fix it.
+
+We read the data in.
+
+```{r}
+corrupt_data <- read_excel("data/data_set_corrupt.xlsx")
+```
+
+Then we count the verbs. Notice the `other` value with one occurrence in our data.
+
+```{r}
+corrupt_data %>% 
+  count(Verbs.1)
+```
+
+We can certainly fix that in our original data file. But here's how to fix it in R:
+
+```{r}
+corrupt_data <- corrupt_data %>% 
+  mutate(Verbs.1.fixed = case_when(Verbs.1 == "other" ~ "OTHER",
+                                   TRUE ~ Verbs.1))
+```
+
+Let's check our verbs again.
+
+```{r}
+corrupt_data %>% 
+  count(Verbs.1.fixed)
+```
