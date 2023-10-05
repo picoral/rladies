@@ -20,6 +20,40 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
 </style>
 
 
@@ -59,6 +93,9 @@ ul.task-list li input[type="checkbox"] {
     "search-label": "Search"
   }
 }</script>
+
+<link href="site_libs/pagedtable-1.1/css/pagedtable.css" rel="stylesheet">
+<script src="site_libs/pagedtable-1.1/js/pagedtable.js"></script>
 
 
 <link rel="stylesheet" href="styles.css">
@@ -131,7 +168,13 @@ ul.task-list li input[type="checkbox"] {
 <!-- sidebar -->
 <!-- margin-sidebar -->
     <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
-        
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#getting-started" id="toc-getting-started" class="nav-link active" data-scroll-target="#getting-started">Getting started</a></li>
+  </ul>
+</nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
@@ -153,9 +196,106 @@ ul.task-list li input[type="checkbox"] {
 
 </header>
 
-<p>For this tutorial on how to read data in R, we will be using bilingual children production from the (Corpus of bilingual children’s speech on kaggle)[https://www.kaggle.com/datasets/rtatman/corpus-of-bilingual-childrens-speech]</p>
+<p>For this tutorial on how to read data in R, we will be using bilingual children production from the (Corpus of bilingual children’s speech on kaggle)[https://www.kaggle.com/datasets/rtatman/corpus-of-bilingual-childrens-speech].</p>
+<p>There are multiple files to be downloaded. Make sure you know where the files are in your project.</p>
+<section id="getting-started" class="level1">
+<h1>Getting started</h1>
+<p>As usual we will start by loading tidyverse.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Then we will list all the files we want to read in,</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>files2read <span class="ot">&lt;-</span> <span class="fu">list.files</span>(<span class="at">path =</span> <span class="st">"corpus-data/childrens-speech"</span>,</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>                         <span class="at">pattern =</span> <span class="st">"</span><span class="sc">\\</span><span class="st">.cha"</span>,</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>                         <span class="at">full.names =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>files2read</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> [1] "corpus-data/childrens-speech/bnfs1.cha"
+ [2] "corpus-data/childrens-speech/brnd1.cha"
+ [3] "corpus-data/childrens-speech/chrs1.cha"
+ [4] "corpus-data/childrens-speech/cndx1.cha"
+ [5] "corpus-data/childrens-speech/dnln1.cha"
+ [6] "corpus-data/childrens-speech/dnnc1.cha"
+ [7] "corpus-data/childrens-speech/dnns1.cha"
+ [8] "corpus-data/childrens-speech/dvdc1.cha"
+ [9] "corpus-data/childrens-speech/flpp1.cha"
+[10] "corpus-data/childrens-speech/gsyn1.cha"
+[11] "corpus-data/childrens-speech/jnnh1.cha"
+[12] "corpus-data/childrens-speech/lgkr1.cha"
+[13] "corpus-data/childrens-speech/llkc1.cha"
+[14] "corpus-data/childrens-speech/mrss1.cha"
+[15] "corpus-data/childrens-speech/rmlm1.cha"
+[16] "corpus-data/childrens-speech/rndl1.cha"
+[17] "corpus-data/childrens-speech/rnl01.cha"
+[18] "corpus-data/childrens-speech/sbst1.cha"
+[19] "corpus-data/childrens-speech/shhn1.cha"
+[20] "corpus-data/childrens-speech/smns1.cha"
+[21] "corpus-data/childrens-speech/thrj1.cha"
+[22] "corpus-data/childrens-speech/tnyn1.cha"
+[23] "corpus-data/childrens-speech/trrk1.cha"
+[24] "corpus-data/childrens-speech/yssf1.cha"</code></pre>
+</div>
+</div>
+<p>Then we will use <code>read_csv</code> to read all the files at once, setting the <code>id</code> to be our <code>filename</code> variable.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>data <span class="ot">&lt;-</span> <span class="fu">read_delim</span>(files2read,</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>                   <span class="at">col_names =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>                   <span class="at">delim =</span> <span class="st">"∑"</span>,</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>                   <span class="at">id =</span> <span class="st">"filename"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>data <span class="ot">&lt;-</span> data <span class="sc">%&gt;%</span> </span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">participant =</span> <span class="fu">str_remove_all</span>(filename, <span class="st">"corpus-data/childrens-speech/|</span><span class="sc">\\</span><span class="st">.cha"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>participant_info <span class="ot">&lt;-</span> data <span class="sc">%&gt;%</span> </span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="fu">str_sub</span>(X1, <span class="dv">1</span>, <span class="dv">1</span>) <span class="sc">==</span> <span class="st">"@"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>data <span class="ot">&lt;-</span> data <span class="sc">%&gt;%</span> </span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="fu">str_sub</span>(X1, <span class="dv">1</span>, <span class="dv">1</span>) <span class="sc">!=</span> <span class="st">"@"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>data <span class="ot">&lt;-</span> data <span class="sc">%&gt;%</span> </span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">speaker =</span> <span class="fu">str_sub</span>(X1, <span class="dv">1</span>, <span class="dv">5</span>),</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>         <span class="at">speaker =</span> <span class="fu">if_else</span>(<span class="fu">str_sub</span>(speaker, <span class="dv">1</span>, <span class="dv">1</span>) <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"*"</span>, <span class="st">"%"</span>),</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>                             speaker, <span class="cn">NA_character_</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fill</span>(speaker)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>data <span class="sc">%&gt;%</span> </span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(speaker)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":["speaker"],"name":[1],"type":["chr"],"align":["left"]},{"label":["n"],"name":[2],"type":["int"],"align":["right"]}],"data":[{"1":"%act:","2":"2143"},{"1":"%add:","2":"122"},{"1":"%com:","2":"89"},{"1":"%exp:","2":"276"},{"1":"%sit:","2":"34"},{"1":"*ANT:","2":"3"},{"1":"*BRO:","2":"44"},{"1":"*CAM:","2":"39"},{"1":"*CHI:","2":"15226"},{"1":"*EX2:","2":"10"},{"1":"*EXP:","2":"16585"},{"1":"*FAT:","2":"9"},{"1":"*MOT:","2":"289"},{"1":"*SIB:","2":"96"},{"1":"*SIS:","2":"35"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>data <span class="ot">&lt;-</span> data <span class="sc">%&gt;%</span> </span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">utterance =</span> <span class="fu">str_remove</span>(X1, <span class="fu">fixed</span>(speaker)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>data <span class="sc">%&gt;%</span> </span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(speaker <span class="sc">==</span> <span class="st">"*CHI:"</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(participant)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":["participant"],"name":[1],"type":["chr"],"align":["left"]},{"label":["n"],"name":[2],"type":["int"],"align":["right"]}],"data":[{"1":"bnfs1","2":"975"},{"1":"brnd1","2":"821"},{"1":"chrs1","2":"610"},{"1":"cndx1","2":"648"},{"1":"dnln1","2":"642"},{"1":"dnnc1","2":"946"},{"1":"dnns1","2":"542"},{"1":"dvdc1","2":"718"},{"1":"flpp1","2":"818"},{"1":"gsyn1","2":"595"},{"1":"jnnh1","2":"297"},{"1":"lgkr1","2":"750"},{"1":"llkc1","2":"644"},{"1":"mrss1","2":"575"},{"1":"rmlm1","2":"729"},{"1":"rndl1","2":"343"},{"1":"rnl01","2":"421"},{"1":"sbst1","2":"456"},{"1":"shhn1","2":"614"},{"1":"smns1","2":"580"},{"1":"thrj1","2":"487"},{"1":"tnyn1","2":"866"},{"1":"trrk1","2":"887"},{"1":"yssf1","2":"262"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+</div>
 
 
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">

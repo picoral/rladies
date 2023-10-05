@@ -225,17 +225,80 @@ r.squaredGLMM(model_status_2)
 ```
 
 
-# speakers' perceived place of origin
+# speakers' perceived place of origin (Caribbean vs. other)
+
+Table 2 replication
 
 ```{r}
 #| echo: true
 #| eval: true
-model_origin <- lmer(dep_status ~ VariantHeard + SpeakerType + PhoneticsClass +
-                     MaxClassBinned + WeeksAbroad + AspirationContact +
-                     UseWithNSs + UseAtWork + UseListeningToMedia + Age +
-                     Gender + (1|Participant) + (1|AudioNumber),
+l2_span_perception <- l2_span_perception %>% 
+  mutate(origin_dep = if_else(PerceivedSpeakerOrigin == "Caribbean", 1, 0),
+         VariantHeard = factor(VariantHeard, levels = c("s", "h")))
+
+model_origin <- lmer(origin_dep ~ VariantHeard + PhoneticsClass +
+                         VariantHeard:PhoneticsClass +
+                     MaxClassBinned + (1|Participant) + (1|AudioNumber),
                    data = l2_span_perception)
 
-step_model_status <- step(model_status)
-step_model_status
+summary(model_origin)
+anova(model_origin)
+r.squaredGLMM(model_origin)
+```
+
+> To clarify this rather complex relationship, a conditional inference tree is provided in Figure 2.
+
+Oh no
+
+```{r}
+library(effects)
+library(ggthemes)
+effect("VariantHeard:PhoneticsClass", model_origin) %>% 
+  data.frame() %>% 
+  ggplot(aes(x = PhoneticsClass,
+             y = fit,
+             ymin = lower,
+             ymax = upper,
+             color = VariantHeard)) +
+  geom_errorbar() +
+  geom_label(aes(label = round(fit, 2))) +
+  theme_linedraw() +
+  scale_color_colorblind() +
+  labs(title = "Probability (fit) of participant hearing /s/")
+```
+
+```{r}
+library(effects)
+library(ggthemes)
+effect("MaxClassBinned", model_origin) %>% 
+  data.frame() %>% 
+  mutate(MaxClassBinned = factor(MaxClassBinned,
+                                 levels = c("Elementary",
+                                            "Intermediate Low",
+                                            "Intermediate High",
+                                            "Advanced"))) %>% 
+  ggplot(aes(x = MaxClassBinned,
+             y = fit,
+             ymin = lower,
+             ymax = upper)) +
+  geom_errorbar() +
+  geom_label(aes(label = round(fit, 2))) +
+  theme_linedraw() +
+  labs(title = "Probability (fit) of participant hearing /s/")
+```
+
+# Conditional Inference Trees
+
+```{r}
+library(partykit)
+l2_span_perception <- l2_span_perception %>% 
+  mutate(VariantHeard = factor(VariantHeard),
+         PhoneticsClass = factor(PhoneticsClass),
+         MaxClassBinned = factor(MaxClassBinned),
+         PerceivedSpeakerOrigin = factor(PerceivedSpeakerOrigin))
+
+ctree_model =  ctree(PerceivedSpeakerOrigin ~ VariantHeard + PhoneticsClass + MaxClassBinned, 
+                     data = l2_span_perception)
+
+plot(ctree_model)
 ```
