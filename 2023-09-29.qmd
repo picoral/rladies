@@ -1,6 +1,9 @@
 ---
 title: "Reproducing Open Science Research 3"
 df-print: kable
+execute: 
+  echo: true
+  warning: false
 ---
 
 **October 06, 10am to 11am. [Register](https://arizona.zoom.us/meeting/register/tZIod-6urjksHdyNtrnlOfB49lh0hKgOLFQ5)**
@@ -130,25 +133,109 @@ l2_span_perception %>%
 
 > "[...] we conducted an FA and used the Kaiser Rules to establish which properties should be combined and analyzed as joint factors in the model-construction procedure"
 
+For the Factor Analysis we need a data frame with only the indices we will be running on the analysis.
+
 ```{r}
 #| echo: true
 #| eval: true
 indices <- l2_span_perception %>% 
   select(Intelligent:Feminine)
+```
 
+Now we can run the FA (with 3 factors, since that's what the authors did).
+
+```{r}
+#| echo: true
+#| eval: true
 fa <- factanal(x = indices, factors = 3) 
 fa
+```
+
+Then we inspect the loadings.
+
+```{r}
+#| echo: true
+#| eval: true
+fa$loadings
+```
+
+
+```{r}
+#| echo: false
+#| eval: false
+loadings <- fa$loadings
+dimnames(loadings)[[1]]
+loadings[1:8]
+```
+
+> The FA motivated the creation of three combined factors: (a) a status factor (loading for intelligence and work ethic), (b) a confident Spanish-speaker factor (loading for Hispanicity, confidence, and good Spanish), and (c) a solidarity factor (loading for niceness and humility). As no other factors appeared to be correlated, they were explored independently.
+
+# Regression models
+
+> Mixed-effects regression models were then created using the lme4 (Bates et al., Reference Bates, Maechler, Bolker and Walker2017) and lmerTest (Kuznetsova et al., Reference Kuznetsova, Brockhoff and Christensen2016) packages in R (R Core Team, 2018), and individual models were fitted to the following dependent variables: (a) status (intelligence/work ethic), (b) confident Spanish speaker (Hispanicity/confidence/good Spanish), (c) solidarity (niceness/humility), (d) age, (e) femininity, and (f) perceived speaker origin. Treatment contrasts were used, and the random effects in each model included the listener and the presentation order of the stimuli.
+
+> The independent variables tested in each model include variant ([s] or [h]), speaker type (Mexican or Puerto Rican), having taken a phonetics class (yes or no), most advanced Spanish class taken divided into four collapsed categories (elementary, intermediate low, intermediate high, and advanced), number of weeks spent studying abroad (continuous), experience abroad with an aspirating variety (yes or no), whether participants use Spanish regularly with NSs (yes or no), whether participants use Spanish regularly at work (yes or no), whether participants listen regularly to Spanish media (e.g., shows, podcasts, movies, music [yes or no]), listener age (continuous), and listener gender (man, woman, or other). 
+
+## dependent variable: status (intelligence/work ethic)
+
+```{r}
+#| echo: true
+#| eval: true
+l2_span_perception <- l2_span_perception %>% 
+  mutate(dep_status = Intelligent + Hardworking)
 ```
 
 ```{r}
 #| echo: true
 #| eval: true
-loadings <- fa$loadings
-dimnames(loadings)[[1]]
+library(lme4)
+library(lmerTest)
+model_status <- lmer(dep_status ~ VariantHeard + SpeakerType + PhoneticsClass +
+                     MaxClassBinned + WeeksAbroad + AspirationContact +
+                     UseWithNSs + UseAtWork + UseListeningToMedia + Age +
+                     Gender + (1|Participant) + (1|AudioNumber),
+                   data = l2_span_perception)
+
+step_model_status <- step(model_status)
+step_model_status
+```
+
+```{r}
+model_status_2 <- lmer(dep_status ~ VariantHeard + PhoneticsClass +
+                         VariantHeard:PhoneticsClass +
+                     MaxClassBinned + (1|Participant) + (1|AudioNumber),
+                   data = l2_span_perception)
+
+summary(model_status_2)
+anova(model_status_2)
 ```
 
 
 ```{r}
-loadings[1:8]
+#| eval: false
+#| echo: false
+model_2_results <- summary(model_status_2)
+# calculate McFadden's R-squared for model
+with(summary(model_status_2), 1 - deviance/null.deviance)
 ```
 
+```{r}
+library(MuMIn)
+r.squaredGLMM(model_status_2)
+```
+
+
+# speakers' perceived place of origin
+
+```{r}
+#| echo: true
+#| eval: true
+model_origin <- lmer(dep_status ~ VariantHeard + SpeakerType + PhoneticsClass +
+                     MaxClassBinned + WeeksAbroad + AspirationContact +
+                     UseWithNSs + UseAtWork + UseListeningToMedia + Age +
+                     Gender + (1|Participant) + (1|AudioNumber),
+                   data = l2_span_perception)
+
+step_model_status <- step(model_status)
+step_model_status
+```

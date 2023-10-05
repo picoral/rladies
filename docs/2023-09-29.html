@@ -176,6 +176,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   </ul></li>
   <li><a href="#research-questions" id="toc-research-questions" class="nav-link" data-scroll-target="#research-questions">Research questions</a></li>
   <li><a href="#factor-analysis" id="toc-factor-analysis" class="nav-link" data-scroll-target="#factor-analysis">Factor Analysis</a></li>
+  <li><a href="#regression-models" id="toc-regression-models" class="nav-link" data-scroll-target="#regression-models">Regression models</a>
+  <ul class="collapse">
+  <li><a href="#dependent-variable-status-intelligencework-ethic" id="toc-dependent-variable-status-intelligencework-ethic" class="nav-link" data-scroll-target="#dependent-variable-status-intelligencework-ethic">dependent variable: status (intelligence/work ethic)</a></li>
+  </ul></li>
+  <li><a href="#speakers-perceived-place-of-origin" id="toc-speakers-perceived-place-of-origin" class="nav-link" data-scroll-target="#speakers-perceived-place-of-origin">speakers’ perceived place of origin</a></li>
   </ul>
 </nav>
     </div>
@@ -370,10 +375,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>             <span class="at">fill =</span> <span class="st">"white"</span>) <span class="sc">+</span></span>
 <span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>VariantHeard) <span class="sc">+</span></span>
 <span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_gradient</span>(<span class="at">low =</span> <span class="st">"lightgray"</span> , <span class="at">high =</span> <span class="st">"black"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>`summarise()` has grouped output by 'VariantHeard', 'SpeakerType'. You can
-override using the `.groups` argument.</code></pre>
-</div>
 <div class="cell-output-display">
 <p><img src="2023-09-29_files/figure-html/unnamed-chunk-9-1.png" class="img-fluid" width="672"></p>
 </div>
@@ -384,12 +385,15 @@ override using the `.groups` argument.</code></pre>
 <blockquote class="blockquote">
 <p>“[…] we conducted an FA and used the Kaiser Rules to establish which properties should be combined and analyzed as joint factors in the model-construction procedure”</p>
 </blockquote>
+<p>For the Factor Analysis we need a data frame with only the indices we will be running on the analysis.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>indices <span class="ot">&lt;-</span> l2_span_perception <span class="sc">%&gt;%</span> </span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(Intelligent<span class="sc">:</span>Feminine)</span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>fa <span class="ot">&lt;-</span> <span class="fu">factanal</span>(<span class="at">x =</span> indices, <span class="at">factors =</span> <span class="dv">3</span>) </span>
-<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>fa</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>indices <span class="ot">&lt;-</span> l2_span_perception <span class="sc">%&gt;%</span> </span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(Intelligent<span class="sc">:</span>Feminine)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Now we can run the FA (with 3 factors, since that’s what the authors did).</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>fa <span class="ot">&lt;-</span> <span class="fu">factanal</span>(<span class="at">x =</span> indices, <span class="at">factors =</span> <span class="dv">3</span>) </span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>fa</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
 Call:
@@ -422,19 +426,263 @@ The chi square statistic is 56.19 on 7 degrees of freedom.
 The p-value is 8.66e-10 </code></pre>
 </div>
 </div>
+<p>Then we inspect the loadings.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>loadings <span class="ot">&lt;-</span> fa<span class="sc">$</span>loadings</span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="fu">dimnames</span>(loadings)[[<span class="dv">1</span>]]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>fa<span class="sc">$</span>loadings</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] "Intelligent" "Hardworking" "Nice"        "Hispanic"    "Confident"  
-[6] "DowntoEarth" "GoodSpanish" "Feminine"   </code></pre>
+<pre><code>
+Loadings:
+            Factor1 Factor2 Factor3
+Intelligent  0.200   0.780         
+Hardworking  0.291   0.680   0.213 
+Nice         0.176   0.427   0.500 
+Hispanic     0.698   0.127         
+Confident    0.647   0.406         
+DowntoEarth  0.107           0.827 
+GoodSpanish  0.673   0.258   0.109 
+Feminine    -0.443          -0.160 
+
+               Factor1 Factor2 Factor3
+SS loadings      1.723   1.509   1.028
+Proportion Var   0.215   0.189   0.129
+Cumulative Var   0.215   0.404   0.533</code></pre>
+</div>
+</div>
+<blockquote class="blockquote">
+<p>The FA motivated the creation of three combined factors: (a) a status factor (loading for intelligence and work ethic), (b) a confident Spanish-speaker factor (loading for Hispanicity, confidence, and good Spanish), and (c) a solidarity factor (loading for niceness and humility). As no other factors appeared to be correlated, they were explored independently.</p>
+</blockquote>
+</section>
+<section id="regression-models" class="level1">
+<h1>Regression models</h1>
+<blockquote class="blockquote">
+<p>Mixed-effects regression models were then created using the lme4 (Bates et al., Reference Bates, Maechler, Bolker and Walker2017) and lmerTest (Kuznetsova et al., Reference Kuznetsova, Brockhoff and Christensen2016) packages in R (R Core Team, 2018), and individual models were fitted to the following dependent variables: (a) status (intelligence/work ethic), (b) confident Spanish speaker (Hispanicity/confidence/good Spanish), (c) solidarity (niceness/humility), (d) age, (e) femininity, and (f) perceived speaker origin. Treatment contrasts were used, and the random effects in each model included the listener and the presentation order of the stimuli.</p>
+</blockquote>
+<blockquote class="blockquote">
+<p>The independent variables tested in each model include variant ([s] or [h]), speaker type (Mexican or Puerto Rican), having taken a phonetics class (yes or no), most advanced Spanish class taken divided into four collapsed categories (elementary, intermediate low, intermediate high, and advanced), number of weeks spent studying abroad (continuous), experience abroad with an aspirating variety (yes or no), whether participants use Spanish regularly with NSs (yes or no), whether participants use Spanish regularly at work (yes or no), whether participants listen regularly to Spanish media (e.g., shows, podcasts, movies, music [yes or no]), listener age (continuous), and listener gender (man, woman, or other).</p>
+</blockquote>
+<section id="dependent-variable-status-intelligencework-ethic" class="level2">
+<h2 class="anchored" data-anchor-id="dependent-variable-status-intelligencework-ethic">dependent variable: status (intelligence/work ethic)</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>l2_span_perception <span class="ot">&lt;-</span> l2_span_perception <span class="sc">%&gt;%</span> </span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">dep_status =</span> Intelligent <span class="sc">+</span> Hardworking)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(lme4)</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(lmerTest)</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>model_status <span class="ot">&lt;-</span> <span class="fu">lmer</span>(dep_status <span class="sc">~</span> VariantHeard <span class="sc">+</span> SpeakerType <span class="sc">+</span> PhoneticsClass <span class="sc">+</span></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>                     MaxClassBinned <span class="sc">+</span> WeeksAbroad <span class="sc">+</span> AspirationContact <span class="sc">+</span></span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>                     UseWithNSs <span class="sc">+</span> UseAtWork <span class="sc">+</span> UseListeningToMedia <span class="sc">+</span> Age <span class="sc">+</span></span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>                     Gender <span class="sc">+</span> (<span class="dv">1</span><span class="sc">|</span>Participant) <span class="sc">+</span> (<span class="dv">1</span><span class="sc">|</span>AudioNumber),</span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>                   <span class="at">data =</span> l2_span_perception)</span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>step_model_status <span class="ot">&lt;-</span> <span class="fu">step</span>(model_status)</span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a>step_model_status</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Backward reduced random-effect table:
+
+                  Eliminated npar  logLik    AIC     LRT Df Pr(&gt;Chisq)    
+&lt;none&gt;                         17 -1273.4 2580.8                          
+(1 | Participant)          0   16 -1378.3 2788.6 209.844  1  &lt; 2.2e-16 ***
+(1 | AudioNumber)          0   16 -1284.0 2600.0  21.204  1  4.129e-06 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Backward reduced fixed-effect table:
+Degrees of freedom method: Satterthwaite 
+
+                    Eliminated  Sum Sq Mean Sq NumDF  DenDF F value Pr(&gt;F)  
+Gender                       1  0.0623  0.0623     1 64.000  0.0474 0.8283  
+VariantHeard                 2  0.1440  0.1440     1  7.000  0.1096 0.7503  
+Age                          3  0.1393  0.1393     1 65.000  0.1060 0.7458  
+UseListeningToMedia          4  2.3116  2.3116     1 66.000  1.7593 0.1893  
+SpeakerType                  5  2.9501  2.9501     1  8.000  2.2453 0.1724  
+UseAtWork                    6  2.6552  2.6552     1 67.000  2.0209 0.1598  
+WeeksAbroad                  7  2.9120  2.9120     1 67.999  2.2163 0.1412  
+UseWithNSs                   8  2.2384  2.2384     1 68.998  1.7036 0.1962  
+PhoneticsClass               9  3.5431  3.5431     1 70.000  2.6967 0.1050  
+AspirationContact           10  3.4437  3.4437     1 71.000  2.6210 0.1099  
+MaxClassBinned              11 10.3315  3.4438     3 72.000  2.6211 0.0572 .
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Model found:
+dep_status ~ (1 | Participant) + (1 | AudioNumber)</code></pre>
 </div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>loadings[<span class="dv">1</span><span class="sc">:</span><span class="dv">8</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>model_status_2 <span class="ot">&lt;-</span> <span class="fu">lmer</span>(dep_status <span class="sc">~</span> VariantHeard <span class="sc">+</span> PhoneticsClass <span class="sc">+</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>                         VariantHeard<span class="sc">:</span>PhoneticsClass <span class="sc">+</span></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>                     MaxClassBinned <span class="sc">+</span> (<span class="dv">1</span><span class="sc">|</span>Participant) <span class="sc">+</span> (<span class="dv">1</span><span class="sc">|</span>AudioNumber),</span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>                   <span class="at">data =</span> l2_span_perception)</span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(model_status_2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1]  0.2003753  0.2912866  0.1758673  0.6980672  0.6474650  0.1070223  0.6726941
-[8] -0.4434215</code></pre>
+<pre><code>Linear mixed model fit by REML. t-tests use Satterthwaite's method [
+lmerModLmerTest]
+Formula: 
+dep_status ~ VariantHeard + PhoneticsClass + VariantHeard:PhoneticsClass +  
+    MaxClassBinned + (1 | Participant) + (1 | AudioNumber)
+   Data: l2_span_perception
+
+REML criterion at convergence: 2540.6
+
+Scaled residuals: 
+    Min      1Q  Median      3Q     Max 
+-4.1648 -0.4831  0.0043  0.5349  3.3504 
+
+Random effects:
+ Groups      Name        Variance Std.Dev.
+ Participant (Intercept) 0.94126  0.9702  
+ AudioNumber (Intercept) 0.09798  0.3130  
+ Residual                1.31438  1.1465  
+Number of obs: 760, groups:  Participant, 76; AudioNumber, 10
+
+Fixed effects:
+                                 Estimate Std. Error        df t value Pr(&gt;|t|)
+(Intercept)                       0.93969    0.26326  48.79329   3.569 0.000815
+VariantHeards                     0.03584    0.21773   8.45553   0.165 0.873137
+PhoneticsClassYes                -0.65228    0.36181  87.41817  -1.803 0.074864
+MaxClassBinnedElementary         -1.11418    0.42631  71.00059  -2.614 0.010932
+MaxClassBinnedIntermediate High   0.17895    0.29424  71.00059   0.608 0.545003
+MaxClassBinnedIntermediate Low   -0.34794    0.32749  71.00059  -1.062 0.291635
+VariantHeards:PhoneticsClassYes   0.19766    0.22810 674.00008   0.867 0.386480
+                                   
+(Intercept)                     ***
+VariantHeards                      
+PhoneticsClassYes               .  
+MaxClassBinnedElementary        *  
+MaxClassBinnedIntermediate High    
+MaxClassBinnedIntermediate Low     
+VariantHeards:PhoneticsClassYes    
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Correlation of Fixed Effects:
+            (Intr) VrntHr PhntCY MxClBE MxCBIH MxCBIL
+VariantHrds -0.414                                   
+PhntcsClssY -0.342  0.052                            
+MxClssBnndE -0.425  0.000  0.198                     
+MxClssBnnIH -0.529  0.000  0.046  0.327              
+MxClssBnnIL -0.553  0.000  0.258  0.341  0.426       
+VrntHrd:PCY  0.068 -0.165 -0.315  0.000  0.000  0.000</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="fu">anova</span>(model_status_2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div class="kable-table">
+<table class="table table-sm table-striped small">
+<colgroup>
+<col style="width: 32%">
+<col style="width: 12%">
+<col style="width: 11%">
+<col style="width: 7%">
+<col style="width: 11%">
+<col style="width: 11%">
+<col style="width: 11%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;"></th>
+<th style="text-align: right;">Sum Sq</th>
+<th style="text-align: right;">Mean Sq</th>
+<th style="text-align: right;">NumDF</th>
+<th style="text-align: right;">DenDF</th>
+<th style="text-align: right;">F value</th>
+<th style="text-align: right;">Pr(&gt;F)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">VariantHeard</td>
+<td style="text-align: right;">0.4566423</td>
+<td style="text-align: right;">0.4566423</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">10.24927</td>
+<td style="text-align: right;">0.3474209</td>
+<td style="text-align: right;">0.5683413</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">PhoneticsClass</td>
+<td style="text-align: right;">3.4147173</td>
+<td style="text-align: right;">3.4147173</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">71.00059</td>
+<td style="text-align: right;">2.5979723</td>
+<td style="text-align: right;">0.1114373</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">MaxClassBinned</td>
+<td style="text-align: right;">12.9231579</td>
+<td style="text-align: right;">4.3077193</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">71.00059</td>
+<td style="text-align: right;">3.2773827</td>
+<td style="text-align: right;">0.0258835</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">VariantHeard:PhoneticsClass</td>
+<td style="text-align: right;">0.9870502</td>
+<td style="text-align: right;">0.9870502</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">674.00008</td>
+<td style="text-align: right;">0.7509638</td>
+<td style="text-align: right;">0.3864796</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(MuMIn)</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="fu">r.squaredGLMM</span>(model_status_2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>            R2m       R2c
+[1,] 0.06094177 0.4755826</code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="speakers-perceived-place-of-origin" class="level1">
+<h1>speakers’ perceived place of origin</h1>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>model_origin <span class="ot">&lt;-</span> <span class="fu">lmer</span>(dep_status <span class="sc">~</span> VariantHeard <span class="sc">+</span> SpeakerType <span class="sc">+</span> PhoneticsClass <span class="sc">+</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>                     MaxClassBinned <span class="sc">+</span> WeeksAbroad <span class="sc">+</span> AspirationContact <span class="sc">+</span></span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>                     UseWithNSs <span class="sc">+</span> UseAtWork <span class="sc">+</span> UseListeningToMedia <span class="sc">+</span> Age <span class="sc">+</span></span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>                     Gender <span class="sc">+</span> (<span class="dv">1</span><span class="sc">|</span>Participant) <span class="sc">+</span> (<span class="dv">1</span><span class="sc">|</span>AudioNumber),</span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>                   <span class="at">data =</span> l2_span_perception)</span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a>step_model_status <span class="ot">&lt;-</span> <span class="fu">step</span>(model_status)</span>
+<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a>step_model_status</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Backward reduced random-effect table:
+
+                  Eliminated npar  logLik    AIC     LRT Df Pr(&gt;Chisq)    
+&lt;none&gt;                         17 -1273.4 2580.8                          
+(1 | Participant)          0   16 -1378.3 2788.6 209.844  1  &lt; 2.2e-16 ***
+(1 | AudioNumber)          0   16 -1284.0 2600.0  21.204  1  4.129e-06 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Backward reduced fixed-effect table:
+Degrees of freedom method: Satterthwaite 
+
+                    Eliminated  Sum Sq Mean Sq NumDF  DenDF F value Pr(&gt;F)  
+Gender                       1  0.0623  0.0623     1 64.000  0.0474 0.8283  
+VariantHeard                 2  0.1440  0.1440     1  7.000  0.1096 0.7503  
+Age                          3  0.1393  0.1393     1 65.000  0.1060 0.7458  
+UseListeningToMedia          4  2.3116  2.3116     1 66.000  1.7593 0.1893  
+SpeakerType                  5  2.9501  2.9501     1  8.000  2.2453 0.1724  
+UseAtWork                    6  2.6552  2.6552     1 67.000  2.0209 0.1598  
+WeeksAbroad                  7  2.9120  2.9120     1 67.999  2.2163 0.1412  
+UseWithNSs                   8  2.2384  2.2384     1 68.998  1.7036 0.1962  
+PhoneticsClass               9  3.5431  3.5431     1 70.000  2.6967 0.1050  
+AspirationContact           10  3.4437  3.4437     1 71.000  2.6210 0.1099  
+MaxClassBinned              11 10.3315  3.4438     3 72.000  2.6211 0.0572 .
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Model found:
+dep_status ~ (1 | Participant) + (1 | AudioNumber)</code></pre>
 </div>
 </div>
 
