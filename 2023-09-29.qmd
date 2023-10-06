@@ -143,6 +143,8 @@ fa$loadings
 ```
 
 
+SS (sums of squares) loadings indicate the variance explained (eigenvalue/number of variables).
+
 ```{r}
 #| echo: false
 #| eval: false
@@ -151,7 +153,17 @@ dimnames(loadings)[[1]]
 loadings[1:8]
 ```
 
+
 > The FA motivated the creation of three combined factors: (a) a status factor (loading for intelligence and work ethic), (b) a confident Spanish-speaker factor (loading for Hispanicity, confidence, and good Spanish), and (c) a solidarity factor (loading for niceness and humility). As no other factors appeared to be correlated, they were explored independently.
+
+```{r}
+#| echo: true
+#| eval: true
+library(psych)
+scree(indices)
+```
+
+You can learn more about FA in [this chapter by Rachael Smyth and Andrew Johnson](https://www.uwo.ca/fhs/tc/labs/10.FactorAnalysis.pdf).
 
 ## Regression models
 
@@ -329,6 +341,7 @@ r.squaredGLMM(model_acc)
 library(car)
 Anova(model_acc)
 ```
+
 ```{r}
 effect("SpeakerType:MaxClassBinned", model_acc) %>% 
   data.frame() %>% 
