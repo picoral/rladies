@@ -87,7 +87,7 @@ l2_span_perception %>%
 
 # Research questions
 
-* Are L2-Spanish language learners bale to perceive the social meanings of coda /s/ in their L2?
+* Are L2-Spanish language learners able to perceive the social meanings of coda /s/ in their L2?
 
 > If so, what social properties will L2 Learners associate with coda [h]?
 
@@ -112,24 +112,7 @@ l2_span_perception %>%
 ```
 
 
-```{r}
-#| echo: true
-#| eval: true
-l2_span_perception %>% 
-  group_by(VariantHeard, SpeakerType, PerceivedSpeakerOrigin) %>% 
-  summarize(count = n()) %>% 
-  mutate(total = sum(count),
-         percent = round((count/total)*100, 2)) %>% 
-  ggplot(aes(x = PerceivedSpeakerOrigin, y = SpeakerType,
-             fill = count)) +
-  geom_tile() +
-  geom_label(aes(label = paste0(percent, "%")),
-             fill = "white") +
-  facet_wrap(~VariantHeard) +
-  scale_fill_gradient(low = "lightgray" , high = "black")
-```
-
-# Factor Analysis
+## Factor Analysis
 
 > "[...] we conducted an FA and used the Kaiser Rules to establish which properties should be combined and analyzed as joint factors in the model-construction procedure"
 
@@ -170,13 +153,13 @@ loadings[1:8]
 
 > The FA motivated the creation of three combined factors: (a) a status factor (loading for intelligence and work ethic), (b) a confident Spanish-speaker factor (loading for Hispanicity, confidence, and good Spanish), and (c) a solidarity factor (loading for niceness and humility). As no other factors appeared to be correlated, they were explored independently.
 
-# Regression models
+## Regression models
 
 > Mixed-effects regression models were then created using the lme4 (Bates et al., Reference Bates, Maechler, Bolker and Walker2017) and lmerTest (Kuznetsova et al., Reference Kuznetsova, Brockhoff and Christensen2016) packages in R (R Core Team, 2018), and individual models were fitted to the following dependent variables: (a) status (intelligence/work ethic), (b) confident Spanish speaker (Hispanicity/confidence/good Spanish), (c) solidarity (niceness/humility), (d) age, (e) femininity, and (f) perceived speaker origin. Treatment contrasts were used, and the random effects in each model included the listener and the presentation order of the stimuli.
 
 > The independent variables tested in each model include variant ([s] or [h]), speaker type (Mexican or Puerto Rican), having taken a phonetics class (yes or no), most advanced Spanish class taken divided into four collapsed categories (elementary, intermediate low, intermediate high, and advanced), number of weeks spent studying abroad (continuous), experience abroad with an aspirating variety (yes or no), whether participants use Spanish regularly with NSs (yes or no), whether participants use Spanish regularly at work (yes or no), whether participants listen regularly to Spanish media (e.g., shows, podcasts, movies, music [yes or no]), listener age (continuous), and listener gender (man, woman, or other). 
 
-## dependent variable: status (intelligence/work ethic)
+### dependent variable: status (intelligence/work ethic)
 
 ```{r}
 #| echo: true
@@ -225,7 +208,7 @@ r.squaredGLMM(model_status_2)
 ```
 
 
-# speakers' perceived place of origin (Caribbean vs. other)
+### speakers' perceived place of origin (Caribbean vs. other)
 
 Table 2 replication
 
@@ -264,12 +247,10 @@ effect("VariantHeard:PhoneticsClass", model_origin) %>%
   geom_label(aes(label = round(fit, 2))) +
   theme_linedraw() +
   scale_color_colorblind() +
-  labs(title = "Probability (fit) of participant hearing /s/")
+  labs(title = "Probability (fit) of participant saying speaker is Caribbean")
 ```
 
 ```{r}
-library(effects)
-library(ggthemes)
 effect("MaxClassBinned", model_origin) %>% 
   data.frame() %>% 
   mutate(MaxClassBinned = factor(MaxClassBinned,
@@ -284,10 +265,10 @@ effect("MaxClassBinned", model_origin) %>%
   geom_errorbar() +
   geom_label(aes(label = round(fit, 2))) +
   theme_linedraw() +
-  labs(title = "Probability (fit) of participant hearing /s/")
+  labs(title = "Probability (fit) of participant saying speaker is Caribbean")
 ```
 
-# Conditional Inference Trees
+### Conditional Inference Trees
 
 ```{r}
 library(partykit)
@@ -302,3 +283,72 @@ ctree_model =  ctree(PerceivedSpeakerOrigin ~ VariantHeard + PhoneticsClass + Ma
 
 plot(ctree_model)
 ```
+
+
+# Accuracy
+
+```{r}
+#| echo: true
+#| eval: true
+l2_span_perception %>% 
+  group_by(VariantHeard, SpeakerType, PerceivedSpeakerOrigin) %>% 
+  summarize(count = n()) %>% 
+  mutate(total = sum(count),
+         percent = round((count/total)*100, 2)) %>% 
+  ggplot(aes(x = PerceivedSpeakerOrigin, y = SpeakerType,
+             fill = count)) +
+  geom_tile() +
+  geom_label(aes(label = paste0(percent, "%")),
+             fill = "white") +
+  facet_wrap(~VariantHeard) +
+  scale_fill_gradient(low = "lightgray" , high = "black")
+```
+
+
+```{r}
+l2_span_perception <- l2_span_perception %>% 
+  mutate(accuracy = case_when(SpeakerType == "Mexican" & 
+                                PerceivedSpeakerOrigin == "Mexico" ~ 1,
+                              SpeakerType == "Puerto Rican" & 
+                                PerceivedSpeakerOrigin == "Caribbean" ~ 1,
+                              TRUE ~ 0))
+```
+
+
+```{r}
+model_acc <- glmer(accuracy ~ VariantHeard + PhoneticsClass +
+                         VariantHeard:PhoneticsClass + SpeakerType +
+                     SpeakerType:MaxClassBinned +
+                     MaxClassBinned + (1|Participant) + (1|AudioNumber),
+                   data = l2_span_perception,
+                   family = binomial)
+
+summary(model_acc)
+r.squaredGLMM(model_acc)
+
+library(car)
+Anova(model_acc)
+```
+```{r}
+effect("SpeakerType:MaxClassBinned", model_acc) %>% 
+  data.frame() %>% 
+  mutate(MaxClassBinned = factor(MaxClassBinned,
+                                 levels = c("Elementary",
+                                            "Intermediate Low",
+                                            "Intermediate High",
+                                            "Advanced"))) %>% 
+  ggplot(aes(y = MaxClassBinned,
+             x = fit,
+             xmin = lower,
+             xmax = upper,
+             color = SpeakerType)) +
+  geom_errorbar() +
+  geom_label(aes(label = round(fit, 2))) +
+  theme_linedraw() +
+  labs(title = "Probability (fit) of participant being correct") +
+  scale_color_colorblind() +
+  facet_wrap(~SpeakerType) +
+  theme(legend.position = "none") +
+  scale_y_discrete(limits = rev)
+```
+
