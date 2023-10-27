@@ -3,7 +3,7 @@ title: "Reproducing Open Science Research 2"
 df-print: kable
 ---
 
-**September 15, 10am to 11am.**
+**September 15, 10am to 11am.** [Session recording](https://youtu.be/2HSyRzKkdbE)
 
 For this tutorial, we will be replicating some of the analysis in *Palma, P., Marin, M. F., Onishi, K. H., & Titone, D. (2022). Learning, inside and out: Prior linguistic knowledge and learning environment impact word learning in bilingual individuals. Language Learning, 72(4), 980-1016*. Paper can be found at <https://onlinelibrary.wiley.com/doi/abs/10.1111/lang.12501>
 
