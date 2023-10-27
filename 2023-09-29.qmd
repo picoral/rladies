@@ -6,7 +6,7 @@ execute:
   warning: false
 ---
 
-**October 06, 10am to 11am. [Register](https://arizona.zoom.us/meeting/register/tZIod-6urjksHdyNtrnlOfB49lh0hKgOLFQ5)**
+**October 06, 10am to 11am. [Session Recording](https://arizona.zoom.us/rec/share/U-Mz5HODWSDlGXW3SI9WHsl6kvSfAErA1JRTERLs1aElKRl3x9bok1dcdjQNzM0j.ap838WynZjkxgLIt)**
 
 For this tutorial, we will be replicating some of the analysis in [*Chappell, W. & Kanwit, M. (2021). Do Learners Connect Sociophonetic Variation with Regional and Social Characteristics? The Case of L2 Perception of Spanish Aspiration. Studies in Second Language Acquisition. 44(1). 1–25.*](https://scholar.google.com/scholar?hl=en&as_sdt=0%2C3&q=Chappell%2C+W.+%26+Kanwit%2C+M.+%282021%29.+Do+Learners+Connect+Sociophonetic+Variation+with+Regional+and+Social+Characteristics%3F+The+Case+of+L2+Perception+of+Spanish+Aspiration.+Studies+in+Second+Language+Acquisition.+44%281%29.+1%E2%80%9325.&btnG=#:~:text=include%20citations-,%5BPDF%5D%20cambridge.org,-Do%20learners%20connect)
 
